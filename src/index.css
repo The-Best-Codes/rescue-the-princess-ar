@@ -43,71 +43,73 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Professional yellow-orange retro theme */
+  --background: oklch(0.97 0.02 45); /* Warm cream background */
+  --foreground: oklch(0.15 0.03 30); /* Dark brown text */
+  --card: oklch(0.98 0.015 50); /* Slightly warmer card background */
+  --card-foreground: oklch(0.15 0.03 30);
+  --popover: oklch(0.98 0.015 50);
+  --popover-foreground: oklch(0.15 0.03 30);
+  --primary: oklch(0.65 0.15 45); /* Rich golden orange */
+  --primary-foreground: oklch(0.98 0.01 50); /* Cream text on primary */
+  --secondary: oklch(0.85 0.08 50); /* Light golden yellow */
+  --secondary-foreground: oklch(0.25 0.04 30); /* Dark brown on secondary */
+  --muted: oklch(0.9 0.04 45); /* Muted yellow */
+  --muted-foreground: oklch(0.5 0.03 35); /* Medium brown */
+  --accent: oklch(0.75 0.12 40); /* Warm amber accent */
+  --accent-foreground: oklch(0.15 0.03 30);
+  --destructive: oklch(0.6 0.2 15); /* Retro red-orange */
+  --border: oklch(0.82 0.06 45); /* Golden border */
+  --input: oklch(0.92 0.03 48); /* Light golden input */
+  --ring: oklch(0.65 0.15 45); /* Primary ring color */
+  --chart-1: oklch(0.7 0.15 45);
+  --chart-2: oklch(0.6 0.12 35);
+  --chart-3: oklch(0.8 0.1 55);
+  --chart-4: oklch(0.65 0.18 25);
+  --chart-5: oklch(0.75 0.14 65);
+  --sidebar: oklch(0.94 0.03 47);
+  --sidebar-foreground: oklch(0.15 0.03 30);
+  --sidebar-primary: oklch(0.65 0.15 45);
+  --sidebar-primary-foreground: oklch(0.98 0.01 50);
+  --sidebar-accent: oklch(0.85 0.08 50);
+  --sidebar-accent-foreground: oklch(0.25 0.04 30);
+  --sidebar-border: oklch(0.82 0.06 45);
+  --sidebar-ring: oklch(0.65 0.15 45);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Dark retro yellow-orange theme */
+  --background: oklch(0.12 0.02 35); /* Dark brown background */
+  --foreground: oklch(0.9 0.03 50); /* Light golden text */
+  --card: oklch(0.15 0.02 40); /* Dark card background */
+  --card-foreground: oklch(0.9 0.03 50);
+  --popover: oklch(0.15 0.02 40);
+  --popover-foreground: oklch(0.9 0.03 50);
+  --primary: oklch(0.7 0.18 45); /* Bright golden orange */
+  --primary-foreground: oklch(0.1 0.02 35); /* Dark text on primary */
+  --secondary: oklch(0.25 0.04 40); /* Dark secondary */
+  --secondary-foreground: oklch(0.85 0.05 50); /* Light text on secondary */
+  --muted: oklch(0.2 0.03 40); /* Dark muted */
+  --muted-foreground: oklch(0.6 0.04 45); /* Medium golden text */
+  --accent: oklch(0.35 0.06 42); /* Dark amber accent */
+  --accent-foreground: oklch(0.9 0.03 50);
+  --destructive: oklch(0.65 0.22 15); /* Bright retro red */
+  --border: oklch(0.3 0.04 40); /* Dark golden border */
+  --input: oklch(0.18 0.03 42); /* Dark input */
+  --ring: oklch(0.7 0.18 45); /* Primary ring */
+  --chart-1: oklch(0.7 0.18 45);
+  --chart-2: oklch(0.6 0.15 35);
+  --chart-3: oklch(0.8 0.12 55);
+  --chart-4: oklch(0.65 0.2 25);
+  --chart-5: oklch(0.75 0.16 65);
+  --sidebar: oklch(0.15 0.02 40);
+  --sidebar-foreground: oklch(0.9 0.03 50);
+  --sidebar-primary: oklch(0.7 0.18 45);
+  --sidebar-primary-foreground: oklch(0.1 0.02 35);
+  --sidebar-accent: oklch(0.25 0.04 40);
+  --sidebar-accent-foreground: oklch(0.85 0.05 50);
+  --sidebar-border: oklch(0.3 0.04 40);
+  --sidebar-ring: oklch(0.7 0.18 45);
 }
 
 @layer base {
@@ -116,5 +118,60 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Retro game styling */
+@layer components {
+  .retro-title {
+    @apply text-6xl md:text-8xl font-bold text-primary;
+    font-family: "Courier New", monospace;
+    text-shadow:
+      4px 4px 0px oklch(0.45 0.12 35),
+      8px 8px 0px oklch(0.25 0.06 25);
+    letter-spacing: 0.1em;
+  }
+
+  .retro-tagline {
+    @apply text-xl md:text-2xl font-semibold text-secondary-foreground italic;
+    font-family: "Courier New", monospace;
+    text-shadow: 2px 2px 0px oklch(0.75 0.08 40);
+  }
+
+  .retro-card {
+    @apply bg-card border-2 border-border rounded-lg shadow-lg;
+    background: linear-gradient(
+      135deg,
+      var(--card) 0%,
+      oklch(0.95 0.03 48) 100%
+    );
+    box-shadow:
+      0 4px 8px oklch(0.6 0.08 40 / 0.3),
+      inset 0 1px 0 oklch(0.99 0.01 55);
+  }
+
+  .retro-button {
+    @apply bg-primary text-primary-foreground font-bold py-4 px-8 rounded-lg text-lg;
+    font-family: "Courier New", monospace;
+    box-shadow:
+      0 6px 0 oklch(0.45 0.12 35),
+      0 8px 8px oklch(0.3 0.06 30 / 0.4);
+    transition: all 0.1s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .retro-button:hover {
+    transform: translateY(2px);
+    box-shadow:
+      0 4px 0 oklch(0.45 0.12 35),
+      0 6px 6px oklch(0.3 0.06 30 / 0.4);
+  }
+
+  .retro-button:active {
+    transform: translateY(4px);
+    box-shadow:
+      0 2px 0 oklch(0.45 0.12 35),
+      0 4px 4px oklch(0.3 0.06 30 / 0.4);
   }
 }
