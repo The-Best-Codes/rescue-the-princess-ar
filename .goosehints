@@ -8,3 +8,4 @@
     - `bun run build`
     - `bun run lint`
 - Keep the UI professional and consistent
+- Use `bun` as the package manager when possible. Don't directly edit the package.json file unless absolutely necessary, use bun to manage dependencies instead.
