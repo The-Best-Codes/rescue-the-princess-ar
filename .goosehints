@@ -1,0 +1,10 @@
+## General guidelines
+
+- Use subagents to work more quickly
+- Use the shadcn UI components in `src/components/ui/` when applicable. To add new UI components, run `bunx --bun shadcn@latest add <component_name>`.
+- You may run these commands without permission, but do NOT run any others:
+    - `bunx --bun shadcn@latest add <component_name>`
+    - `prettier --write .`
+    - `bun run build`
+    - `bun run lint`
+- Keep the UI professional and consistent
