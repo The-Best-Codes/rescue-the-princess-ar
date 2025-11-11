@@ -295,7 +295,7 @@ export function HandTrackingPhase({ onPhaseComplete }: HandTrackingPhaseProps) {
 
   if (phase === "results") {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="min-h-[100svh] bg-background flex items-center justify-center p-4">
         <div className="max-w-xl w-full text-center space-y-6">
           <h1 className="retro-title">COMPLETE!</h1>
 
@@ -319,7 +319,7 @@ export function HandTrackingPhase({ onPhaseComplete }: HandTrackingPhaseProps) {
   }
 
   return (
-    <div className="relative w-full h-screen bg-black overflow-hidden">
+    <div className="relative w-full h-[100svh] bg-black overflow-hidden">
       <video
         ref={videoRef}
         autoPlay

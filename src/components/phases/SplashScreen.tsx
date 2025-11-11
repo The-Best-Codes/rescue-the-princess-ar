@@ -58,7 +58,7 @@ export function SplashScreen({ onPhaseComplete }: SplashScreenProps) {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-[100svh] bg-background flex items-center justify-center p-4 overflow-y-auto">
       <div className="max-w-2xl w-full space-y-6">
         {/* Title */}
         <div className="text-center space-y-2">

@@ -43,7 +43,7 @@ function App() {
 
       default:
         return (
-          <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="min-h-[100svh] bg-background flex items-center justify-center">
             <div className="text-center">
               <h1 className="retro-title text-4xl mb-4">
                 Phase Not Implemented
