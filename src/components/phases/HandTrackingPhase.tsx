@@ -277,9 +277,10 @@ export function HandTrackingPhase({ onPhaseComplete }: HandTrackingPhaseProps) {
   };
 
   const instructions = [
-    "Line up your fingertip with the coins to collect them!",
+    "Pinch your thumb and index finger together to collect coins!",
+    "You'll see blue dot on your thumb and yellow dot on your index finger",
     "The number on the coin shows how long you have to grab it",
-    "Move your hand quickly to collect as many coins as possible!",
+    "Move your hand quickly and pinch coins to collect them!",
   ];
 
   if (phase === "instructions") {
@@ -325,7 +326,7 @@ export function HandTrackingPhase({ onPhaseComplete }: HandTrackingPhaseProps) {
         autoPlay
         playsInline
         muted
-        className="w-full h-full object-cover"
+        className="w-full h-full object-cover scale-x-[-1]"
       />
 
       <canvas

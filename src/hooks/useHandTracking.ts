@@ -7,6 +7,7 @@ import {
 
 const HAND_LANDMARK_INDEX = {
   INDEX_FINGER_TIP: 8, // Index finger tip
+  THUMB_TIP: 4, // Thumb tip
 };
 
 export function useHandTracking(
@@ -15,6 +16,10 @@ export function useHandTracking(
 ) {
   const [indexFingerPosition, setIndexFingerPosition] =
     useState<NormalizedLandmark | null>(null);
+  const [thumbPosition, setThumbPosition] = useState<NormalizedLandmark | null>(
+    null,
+  );
+  const [isPinching, setIsPinching] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -110,6 +115,22 @@ export function useHandTracking(
         if (results.landmarks && results.landmarks.length > 0) {
           const landmarks = results.landmarks[0];
 
+          // Get finger positions
+          const indexTip = landmarks[HAND_LANDMARK_INDEX.INDEX_FINGER_TIP];
+          const thumbTip = landmarks[HAND_LANDMARK_INDEX.THUMB_TIP];
+
+          // Check for pinch gesture
+          if (indexTip && thumbTip) {
+            const distance = Math.hypot(
+              (indexTip.x - thumbTip.x) * window.innerWidth,
+              (indexTip.y - thumbTip.y) * window.innerHeight,
+            );
+            const isCurrentlyPinching = distance < 50; // 50px threshold for pinch
+            setIsPinching(isCurrentlyPinching);
+            setIndexFingerPosition(indexTip);
+            setThumbPosition(thumbTip);
+          }
+
           // Draw hand skeleton
           if (canvasCtxRef.current) {
             // Draw connections (lines between joints)
@@ -148,11 +169,11 @@ export function useHandTracking(
               if (p1 && p2 && canvasCtxRef.current) {
                 canvasCtxRef.current.beginPath();
                 canvasCtxRef.current.moveTo(
-                  p1.x * window.innerWidth,
+                  (1 - p1.x) * window.innerWidth,
                   p1.y * window.innerHeight,
                 );
                 canvasCtxRef.current.lineTo(
-                  p2.x * window.innerWidth,
+                  (1 - p2.x) * window.innerWidth,
                   p2.y * window.innerHeight,
                 );
                 canvasCtxRef.current.stroke();
@@ -165,7 +186,7 @@ export function useHandTracking(
               if (canvasCtxRef.current) {
                 canvasCtxRef.current.beginPath();
                 canvasCtxRef.current.arc(
-                  landmark.x * window.innerWidth,
+                  (1 - landmark.x) * window.innerWidth,
                   landmark.y * window.innerHeight,
                   5,
                   0,
@@ -175,26 +196,51 @@ export function useHandTracking(
               }
             }
 
-            // Highlight index finger tip with larger dot
-            const indexTip = landmarks[HAND_LANDMARK_INDEX.INDEX_FINGER_TIP];
+            // Highlight thumb tip with blue dot
+            if (thumbTip && canvasCtxRef.current) {
+              canvasCtxRef.current.fillStyle = "#0000FF";
+              canvasCtxRef.current.beginPath();
+              canvasCtxRef.current.arc(
+                (1 - thumbTip.x) * window.innerWidth,
+                thumbTip.y * window.innerHeight,
+                12,
+                0,
+                2 * Math.PI,
+              );
+              canvasCtxRef.current.fill();
+            }
+
+            // Highlight index finger tip with yellow dot
             if (indexTip && canvasCtxRef.current) {
               canvasCtxRef.current.fillStyle = "#FFFF00";
               canvasCtxRef.current.beginPath();
               canvasCtxRef.current.arc(
-                indexTip.x * window.innerWidth,
+                (1 - indexTip.x) * window.innerWidth,
                 indexTip.y * window.innerHeight,
                 12,
                 0,
                 2 * Math.PI,
               );
               canvasCtxRef.current.fill();
+            }
 
-              // Store for collision detection
-              setIndexFingerPosition(indexTip);
+            // Draw pinch indicator when pinching
+            if (isPinching && thumbTip && indexTip && canvasCtxRef.current) {
+              const centerX =
+                ((1 - thumbTip.x + (1 - indexTip.x)) / 2) * window.innerWidth;
+              const centerY =
+                ((thumbTip.y + indexTip.y) / 2) * window.innerHeight;
+
+              canvasCtxRef.current.fillStyle = "#FF00FF";
+              canvasCtxRef.current.beginPath();
+              canvasCtxRef.current.arc(centerX, centerY, 8, 0, 2 * Math.PI);
+              canvasCtxRef.current.fill();
             }
           }
         } else {
           setIndexFingerPosition(null);
+          setThumbPosition(null);
+          setIsPinching(false);
         }
       }
     } catch (err) {
@@ -243,23 +289,28 @@ export function useHandTracking(
     };
   }, [videoElement, isReady, detectHands]);
 
-  // Check if a point collides with coin
+  // Check if pinch collides with coin
   const checkCoinCollision = useCallback(
     (coinX: number, coinY: number, coinRadius: number): boolean => {
-      if (!indexFingerPosition) return false;
+      if (!isPinching || !indexFingerPosition || !thumbPosition) return false;
 
-      // Convert normalized coordinates (0-1) to full screen coordinates
-      const fingerScreenX = indexFingerPosition.x * window.innerWidth;
-      const fingerScreenY = indexFingerPosition.y * window.innerHeight;
+      // Calculate pinch center point (mirrored coordinates)
+      const pinchCenterX =
+        ((1 - indexFingerPosition.x + (1 - thumbPosition.x)) / 2) *
+        window.innerWidth;
+      const pinchCenterY =
+        ((indexFingerPosition.y + thumbPosition.y) / 2) * window.innerHeight;
 
-      const distance = Math.hypot(fingerScreenX - coinX, fingerScreenY - coinY);
+      const distance = Math.hypot(pinchCenterX - coinX, pinchCenterY - coinY);
       return distance < coinRadius;
     },
-    [indexFingerPosition],
+    [isPinching, indexFingerPosition, thumbPosition],
   );
 
   return {
     indexFingerPosition,
+    thumbPosition,
+    isPinching,
     isReady,
     error,
     checkCoinCollision,
