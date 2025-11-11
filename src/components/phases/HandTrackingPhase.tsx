@@ -141,7 +141,7 @@ export function HandTrackingPhase({ onPhaseComplete }: HandTrackingPhaseProps) {
           size:
             Math.floor(
               Math.random() * (stage.sizes[1] - stage.sizes[0]) +
-                stage.sizes[0],
+              stage.sizes[0],
             ) || 50,
           coinCountdown: COIN_COUNTDOWN,
           createdAt: Date.now(),
@@ -279,14 +279,14 @@ export function HandTrackingPhase({ onPhaseComplete }: HandTrackingPhaseProps) {
   const instructions = [
     "Pinch your thumb and index finger together to collect coins!",
     "You'll see blue dot on your thumb and yellow dot on your index finger",
-    "The number on the coin shows how long you have to grab it",
+    "The number on the coin shows the time before it disappears",
     "Move your hand quickly and pinch coins to collect them!",
   ];
 
   if (phase === "instructions") {
     return (
       <InstructionsScreen
-        title="HAND TRACKING"
+        title="COIN PINCHING"
         instructions={instructions}
         onStart={handleStartGame}
         isLoading={false}
