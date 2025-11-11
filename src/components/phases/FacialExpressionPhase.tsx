@@ -38,7 +38,7 @@ interface CoinData {
 
 const PHASE_DURATION = 30;
 const COIN_COUNTDOWN = 3;
-const FADE_DURATION = 0.5;
+const FADE_DURATION = 0.5; // Must be >= longest animation duration + buffer
 const EXPRESSION_MATCH_THRESHOLD = 0.65; // Confidence threshold for expression match
 const EXPRESSION_MATCH_DURATION = 0.3; // How long expression must be held (seconds)
 
@@ -304,12 +304,12 @@ export function FacialExpressionPhase({
 
             return coin;
           })
-          // Remove coins that finished fading
+          // Remove coins that finished fading (use <= instead of < for safety margin)
           .filter((coin) => {
             if (!coin.fadeStartTime) return true;
 
             const fadeElapsed = (now - coin.fadeStartTime) / 1000;
-            return fadeElapsed < FADE_DURATION;
+            return fadeElapsed <= FADE_DURATION;
           }),
       );
 

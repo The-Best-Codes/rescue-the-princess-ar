@@ -124,7 +124,7 @@
 /* Simplified Retro game styling */
 @layer components {
   .retro-title {
-    @apply text-6xl md:text-8xl font-bold text-primary;
+    @apply text-5xl sm:text-6xl md:text-8xl font-bold text-primary;
     font-family: "Courier New", monospace;
     letter-spacing: 0.08em;
   }

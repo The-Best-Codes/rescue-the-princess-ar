@@ -27,12 +27,18 @@ export function Coin({
   isCollected,
   isFading,
 }: CoinProps) {
-  // Don't render if already gone
-  if (!isCollected && remainingTime <= 0) return null;
-
   // Convert normalized coordinates (0-1) to screen pixels
   const screenX = x * window.innerWidth;
   const screenY = y * window.innerHeight;
+
+  // Different animations for collected vs timed out
+  const isTimedOut = isFading && !isCollected;
+  const fadeStyle = isTimedOut ? "0.3s ease-out" : "0.5s ease-out";
+  const scaleStyle = isCollected
+    ? "scale(1.5)"
+    : isTimedOut
+      ? "scale(0.5)"
+      : "scale(1)";
 
   return (
     <div
@@ -40,9 +46,10 @@ export function Coin({
       style={{
         left: `${screenX}px`,
         top: `${screenY}px`,
-        transform: "translate(-50%, -50%)",
+        transform: `translate(-50%, -50%) ${scaleStyle}`,
         opacity: isFading ? 0 : 1,
-        transition: "opacity 0.5s ease-out",
+        transition: `all ${fadeStyle}`,
+        willChange: "opacity, transform",
       }}
     >
       {/* Coin SVG */}

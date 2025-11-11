@@ -34,7 +34,7 @@ interface CoinData {
 
 const PHASE_DURATION = 30;
 const COIN_COUNTDOWN = 3; // Coins last 3 seconds
-const FADE_DURATION = 0.5; // Fade animation duration in seconds
+const FADE_DURATION = 0.5; // Fade animation duration in seconds (must be >= longest animation + buffer)
 
 const DIFFICULTY_STAGES = {
   stage1: {
@@ -247,12 +247,12 @@ export function HandTrackingPhase({ onPhaseComplete }: HandTrackingPhaseProps) {
 
             return coin;
           })
-          // Remove coins that finished fading
+          // Remove coins that finished fading (use <= instead of < for safety margin)
           .filter((coin) => {
             if (!coin.fadeStartTime) return true;
 
             const fadeElapsed = (now - coin.fadeStartTime) / 1000;
-            return fadeElapsed < FADE_DURATION;
+            return fadeElapsed <= FADE_DURATION;
           }),
       );
 
