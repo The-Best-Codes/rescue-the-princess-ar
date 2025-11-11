@@ -2,13 +2,18 @@ import { GamePhase } from "./types/game";
 import { useGameManager } from "./hooks/useGameManager";
 import { SplashScreen } from "./components/phases/SplashScreen";
 import { HandTrackingPhase } from "./components/phases/HandTrackingPhase";
+import { FacialExpressionPhase } from "./components/phases/FacialExpressionPhase";
 
 function App() {
   const { gameState, setPhase, addCoins } = useGameManager();
 
-  const handlePhaseComplete = (nextPhase: GamePhase, coinsEarned?: number) => {
-    if (coinsEarned) {
-      addCoins(coinsEarned, "handTracking");
+  const handlePhaseComplete = (
+    nextPhase: GamePhase,
+    coinsEarned?: number,
+    phaseType?: "handTracking" | "facialExpression" | "arHunt",
+  ) => {
+    if (coinsEarned && phaseType) {
+      addCoins(coinsEarned, phaseType);
     }
     setPhase(nextPhase);
   };
@@ -19,21 +24,21 @@ function App() {
         return <SplashScreen onPhaseComplete={handlePhaseComplete} />;
 
       case GamePhase.HAND_TRACKING:
-        return <HandTrackingPhase onPhaseComplete={handlePhaseComplete} />;
+        return (
+          <HandTrackingPhase
+            onPhaseComplete={(nextPhase, coins) =>
+              handlePhaseComplete(nextPhase, coins, "handTracking")
+            }
+          />
+        );
 
-      // TODO: Implement other phases
       case GamePhase.FACIAL_EXPRESSION:
         return (
-          <div className="min-h-screen bg-background flex items-center justify-center p-4">
-            <div className="text-center space-y-6">
-              <h1 className="text-4xl md:text-6xl font-bold text-primary font-mono">
-                FACIAL EXPRESSION PHASE
-              </h1>
-              <p className="text-xl text-muted-foreground font-semibold">
-                Coming soon...
-              </p>
-            </div>
-          </div>
+          <FacialExpressionPhase
+            onPhaseComplete={(nextPhase, coins) =>
+              handlePhaseComplete(nextPhase, coins, "facialExpression")
+            }
+          />
         );
 
       default:
