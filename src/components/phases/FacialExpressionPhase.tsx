@@ -15,6 +15,7 @@ import { ExpressionCoin } from "../ui/ExpressionCoin";
 import { GamePhase } from "../../types/game";
 import { Progress } from "../ui/progress";
 import { Button } from "../ui/button";
+import { Card, CardContent } from "../ui/card";
 
 interface FacialExpressionPhaseProps {
   onPhaseComplete: (nextPhase: GamePhase, coinsCollected: number) => void;
@@ -352,22 +353,21 @@ export function FacialExpressionPhase({
   if (phase === "results") {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="max-w-2xl w-full text-center space-y-8">
-          <h1 className="retro-title">PHASE COMPLETE!</h1>
+        <div className="max-w-xl w-full text-center space-y-6">
+          <h1 className="retro-title">COMPLETE!</h1>
 
-          <div className="bg-card rounded-lg border-2 border-primary p-8">
-            <div className="space-y-2 text-center">
-              <p className="text-muted-foreground text-sm">COINS COLLECTED</p>
-              <p className="text-6xl font-bold text-primary">
+          <Card className="retro-card">
+            <CardContent className="p-6 space-y-3 text-center">
+              <p className="text-xs font-bold text-muted-foreground uppercase">
+                Coins Collected
+              </p>
+              <p className="text-5xl font-bold text-primary">
                 {coinsCollected}
               </p>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
-          <Button
-            onClick={handleContinue}
-            className="retro-button px-8 py-3 text-lg"
-          >
+          <Button onClick={handleContinue} className="retro-button w-full">
             Continue to Phase 3
           </Button>
         </div>
@@ -416,17 +416,17 @@ export function FacialExpressionPhase({
 
       {/* Coin counter */}
       <div className="absolute top-4 left-4 z-10">
-        <div className="bg-black px-6 py-3 rounded-lg border-2 border-primary shadow-lg">
-          <p className="text-xs font-bold text-yellow-300">COINS</p>
-          <p className="text-3xl font-bold text-yellow-300">{coinsCollected}</p>
+        <div className="hud-box">
+          <p className="hud-label">Coins</p>
+          <p className="hud-value">{coinsCollected}</p>
         </div>
       </div>
 
       {/* Timer */}
       <div className="absolute top-4 right-4 z-10">
-        <div className="bg-black px-6 py-3 rounded-lg border-2 border-primary shadow-lg">
-          <p className="text-xs font-bold text-yellow-300">TIME</p>
-          <p className="text-3xl font-bold text-yellow-300">
+        <div className="hud-box">
+          <p className="hud-label">Time</p>
+          <p className="hud-value">
             {Math.floor(timeRemaining / 60)}:
             {(timeRemaining % 60).toString().padStart(2, "0")}
           </p>
@@ -435,15 +435,13 @@ export function FacialExpressionPhase({
 
       {/* Current emotion feedback */}
       <div className="absolute bottom-4 left-4 z-10">
-        <div className="bg-black px-4 py-2 rounded-lg border-2 border-primary shadow-lg">
-          <p className="text-xs font-bold text-yellow-300">DETECTED</p>
-          <p className="text-lg font-bold text-yellow-300">
-            {topExpression
-              ? `${EXPRESSIONS[topExpression].label} ${EXPRESSIONS[topExpression].emoji}`
-              : "No face"}
+        <div className="hud-box">
+          <p className="hud-label">Detected</p>
+          <p className="hud-value text-xl">
+            {topExpression ? `${EXPRESSIONS[topExpression].emoji}` : "—"}
           </p>
           {currentExpressions && topExpression && (
-            <p className="text-xs text-yellow-300/70">
+            <p className="text-xs text-primary/70">
               {Math.round(currentExpressions[topExpression] * 100)}%
             </p>
           )}

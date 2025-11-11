@@ -121,57 +121,62 @@
   }
 }
 
-/* Retro game styling */
+/* Simplified Retro game styling */
 @layer components {
   .retro-title {
     @apply text-6xl md:text-8xl font-bold text-primary;
     font-family: "Courier New", monospace;
-    text-shadow:
-      4px 4px 0px oklch(0.45 0.12 35),
-      8px 8px 0px oklch(0.25 0.06 25);
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
   }
 
   .retro-tagline {
-    @apply text-xl md:text-2xl font-semibold text-secondary-foreground italic;
+    @apply text-lg md:text-xl font-semibold text-muted-foreground;
     font-family: "Courier New", monospace;
-    text-shadow: 2px 2px 0px oklch(0.75 0.08 40);
   }
 
   .retro-card {
-    @apply bg-card border-2 border-border rounded-lg shadow-lg;
-    background: linear-gradient(
-      135deg,
-      var(--card) 0%,
-      oklch(0.95 0.03 48) 100%
-    );
-    box-shadow:
-      0 4px 8px oklch(0.6 0.08 40 / 0.3),
-      inset 0 1px 0 oklch(0.99 0.01 55);
+    @apply bg-card border-4 border-primary rounded-lg;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   .retro-button {
-    @apply bg-primary text-primary-foreground font-bold py-4 px-8 rounded-lg text-lg;
+    @apply bg-primary text-primary-foreground font-bold py-3 px-6 rounded-lg text-base;
     font-family: "Courier New", monospace;
-    box-shadow:
-      0 6px 0 oklch(0.45 0.12 35),
-      0 8px 8px oklch(0.3 0.06 30 / 0.4);
-    transition: all 0.1s ease;
+    box-shadow: 0 4px 0 oklch(0.45 0.12 35);
+    transition: all 0.05s ease;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    cursor: pointer;
   }
 
-  .retro-button:hover {
+  .retro-button:hover:not(:disabled) {
     transform: translateY(2px);
-    box-shadow:
-      0 4px 0 oklch(0.45 0.12 35),
-      0 6px 6px oklch(0.3 0.06 30 / 0.4);
+    box-shadow: 0 2px 0 oklch(0.45 0.12 35);
   }
 
-  .retro-button:active {
+  .retro-button:active:not(:disabled) {
     transform: translateY(4px);
-    box-shadow:
-      0 2px 0 oklch(0.45 0.12 35),
-      0 4px 4px oklch(0.3 0.06 30 / 0.4);
+    box-shadow: 0 0px 0 oklch(0.45 0.12 35);
+  }
+
+  .retro-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* HUD container for game screens */
+  .hud-box {
+    @apply bg-black/80 px-4 py-3 rounded-lg border-2 border-primary;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .hud-label {
+    @apply text-xs font-bold text-primary/80 uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .hud-value {
+    @apply text-2xl md:text-3xl font-bold text-primary;
+    font-family: "Courier New", monospace;
   }
 }
