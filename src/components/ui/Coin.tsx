@@ -1,13 +1,21 @@
-import { useEffect, useState, useRef } from "react";
+/**
+ * Coin Component - Pure Rendering Component
+ *
+ * This component is now a pure presentation layer. It receives all state from parent
+ * and simply renders the coin. All timing logic has been moved to the parent component.
+ *
+ * Props are calculated by the parent based on current timestamp, so this component
+ * never needs internal timers or state management.
+ */
 
 interface CoinProps {
   id: string;
   x: number; // Normalized 0-1
   y: number; // Normalized 0-1
   size: number; // in pixels
-  countdown: number; // Countdown starting value (3, 2, 1)
-  onExpire: (id: string) => void;
-  collected?: boolean; // Whether coin was collected (triggers fade)
+  remainingTime: number; // Time left in seconds (0-3)
+  isCollected: boolean; // Whether coin was collected
+  isFading: boolean; // Whether to show fade animation
 }
 
 export function Coin({
@@ -15,60 +23,16 @@ export function Coin({
   x,
   y,
   size,
-  countdown,
-  onExpire,
-  collected = false,
+  remainingTime,
+  isCollected,
+  isFading,
 }: CoinProps) {
-  const [currentCountdown, setCurrentCountdown] = useState(countdown);
-  const [isVisible, setIsVisible] = useState(true);
-  const [isFading, setIsFading] = useState(false);
-  const createdAtRef = useRef(Date.now());
-  const hasExpiredRef = useRef(false);
-
-  // Get display dimensions from window (full screen)
-  const screenWidth = window.innerWidth;
-  const screenHeight = window.innerHeight;
+  // Don't render if already gone
+  if (!isCollected && remainingTime <= 0) return null;
 
   // Convert normalized coordinates (0-1) to screen pixels
-  const screenX = x * screenWidth;
-  const screenY = y * screenHeight;
-
-  // Countdown timer - decrement each second
-  useEffect(() => {
-    if (collected) return; // Don't count down if collected
-
-    const timer = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - createdAtRef.current) / 1000);
-      const remaining = Math.max(0, countdown - elapsed);
-
-      setCurrentCountdown(remaining);
-
-      if (remaining === 0 && !hasExpiredRef.current) {
-        hasExpiredRef.current = true;
-        setIsFading(true);
-        setTimeout(() => {
-          setIsVisible(false);
-          onExpire(id);
-        }, 500); // Wait for fade animation
-      }
-    }, 100); // Update more frequently for smooth display
-
-    return () => clearInterval(timer);
-  }, [id, onExpire, collected, countdown]);
-
-  // Handle collected state - trigger fade out
-  useEffect(() => {
-    if (collected && !hasExpiredRef.current) {
-      hasExpiredRef.current = true;
-      setIsFading(true);
-      setTimeout(() => {
-        setIsVisible(false);
-        onExpire(id);
-      }, 500); // Wait for fade animation
-    }
-  }, [collected, id, onExpire]);
-
-  if (!isVisible) return null;
+  const screenX = x * window.innerWidth;
+  const screenY = y * window.innerHeight;
 
   return (
     <div
@@ -77,7 +41,8 @@ export function Coin({
         left: `${screenX}px`,
         top: `${screenY}px`,
         transform: "translate(-50%, -50%)",
-        animation: isFading ? "fadeOut 0.5s ease-out forwards" : "none",
+        opacity: isFading ? 0 : 1,
+        transition: "opacity 0.5s ease-out",
       }}
     >
       {/* Coin SVG */}
@@ -165,21 +130,10 @@ export function Coin({
                 "0 2px 4px rgba(0, 0, 0, 0.8), 0 0 8px rgba(0, 0, 0, 0.5)",
             }}
           >
-            {currentCountdown}
+            {Math.max(0, Math.ceil(remainingTime))}
           </span>
         </div>
       </div>
-
-      <style>{`
-        @keyframes fadeOut {
-          from {
-            opacity: 1;
-          }
-          to {
-            opacity: 0;
-          }
-        }
-      `}</style>
     </div>
   );
 }

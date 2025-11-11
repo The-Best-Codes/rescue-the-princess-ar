@@ -1,3 +1,13 @@
+/**
+ * Hand Tracking Phase - Coin Game
+ *
+ * Simplified coin logic:
+ * - Single parent timer manages ALL coins (no per-coin timers)
+ * - Coins are pure data with calculated properties
+ * - All expiration logic is centralized and predictable
+ * - Clean separation: parent manages logic, Coin component just renders
+ */
+
 import { useEffect, useRef, useState } from "react";
 import { useHandTracking } from "../../hooks/useHandTracking";
 import { InstructionsScreen } from "./InstructionsScreen";
@@ -15,12 +25,16 @@ interface CoinData {
   x: number;
   y: number;
   size: number;
-  countdown: number;
-  createdAt: number;
-  collected?: boolean;
+  coinCountdown: number; // Starting countdown value (always 3)
+  createdAt: number; // Timestamp when coin was created (server of truth)
+  collected: boolean; // Whether the user has collected this coin
+  fadeStartTime: number | null; // When fade animation started (for cleanup)
 }
 
 const PHASE_DURATION = 30;
+const COIN_COUNTDOWN = 3; // Coins last 3 seconds
+const FADE_DURATION = 0.5; // Fade animation duration in seconds
+
 const DIFFICULTY_STAGES = {
   stage1: {
     duration: 10,
@@ -62,8 +76,11 @@ export function HandTrackingPhase({ onPhaseComplete }: HandTrackingPhaseProps) {
     phase === "playing" ? canvasRef.current : null,
   );
 
+  // Initialize camera
   useEffect(() => {
     if (phase !== "playing") return;
+
+    const videoElement = videoRef.current;
 
     const initCamera = async () => {
       try {
@@ -75,11 +92,11 @@ export function HandTrackingPhase({ onPhaseComplete }: HandTrackingPhaseProps) {
           },
         });
 
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
+        if (videoElement) {
+          videoElement.srcObject = stream;
           await new Promise((resolve) => {
-            if (videoRef.current) {
-              videoRef.current.onloadedmetadata = () => resolve(null);
+            if (videoElement) {
+              videoElement.onloadedmetadata = () => resolve(null);
             }
           });
         }
@@ -91,8 +108,8 @@ export function HandTrackingPhase({ onPhaseComplete }: HandTrackingPhaseProps) {
     initCamera();
 
     return () => {
-      if (videoRef.current?.srcObject) {
-        const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
+      if (videoElement?.srcObject) {
+        const tracks = (videoElement.srcObject as MediaStream).getTracks();
         tracks.forEach((track) => track.stop());
       }
     };
@@ -104,13 +121,17 @@ export function HandTrackingPhase({ onPhaseComplete }: HandTrackingPhaseProps) {
     return DIFFICULTY_STAGES.stage3;
   };
 
+  // Spawn coins on interval
   useEffect(() => {
     if (phase !== "playing" || !videoRef.current || !isReady) return;
 
     const spawnCoin = () => {
       setCoins((prevCoins) => {
         const stage = getCurrentStage(PHASE_DURATION - timeRemaining);
-        if (prevCoins.length >= stage.maxCoins) return prevCoins;
+        // Only spawn if under max coins for current stage
+        if (prevCoins.filter((c) => !c.collected).length >= stage.maxCoins) {
+          return prevCoins;
+        }
 
         const newCoin: CoinData = {
           id: `coin-${nextCoinIdRef.current++}`,
@@ -121,13 +142,16 @@ export function HandTrackingPhase({ onPhaseComplete }: HandTrackingPhaseProps) {
               Math.random() * (stage.sizes[1] - stage.sizes[0]) +
                 stage.sizes[0],
             ) || 50,
-          countdown: 3,
+          coinCountdown: COIN_COUNTDOWN,
           createdAt: Date.now(),
+          collected: false,
+          fadeStartTime: null,
         };
 
         return [...prevCoins, newCoin];
       });
 
+      // Schedule next spawn
       const stage = getCurrentStage(PHASE_DURATION - timeRemaining);
       const nextSpawnTime =
         Math.random() * (stage.spawnInterval[1] - stage.spawnInterval[0]) +
@@ -145,16 +169,17 @@ export function HandTrackingPhase({ onPhaseComplete }: HandTrackingPhaseProps) {
     };
   }, [phase, isReady, timeRemaining]);
 
+  // Collision detection loop
   useEffect(() => {
     if (phase !== "playing" || !videoRef.current) return;
 
     const gameLoop = () => {
       setCoins((prevCoins) => {
-        const updated = prevCoins.map((coin) => {
-          if (coin.collected) return coin; // Already collected, don't process again
+        return prevCoins.map((coin) => {
+          // Don't re-collect already collected coins
+          if (coin.collected) return coin;
 
           const radius = coin.size / 2;
-          // Convert normalized coordinates to screen coordinates
           const isColliding = checkCoinCollision(
             coin.x * window.innerWidth,
             coin.y * window.innerHeight,
@@ -163,13 +188,11 @@ export function HandTrackingPhase({ onPhaseComplete }: HandTrackingPhaseProps) {
 
           if (isColliding) {
             setCoinsCollected((prev) => prev + 1);
-            return { ...coin, collected: true };
+            return { ...coin, collected: true, fadeStartTime: Date.now() };
           }
 
           return coin;
         });
-
-        return updated;
       });
 
       gameLoopRef.current = requestAnimationFrame(gameLoop);
@@ -184,6 +207,7 @@ export function HandTrackingPhase({ onPhaseComplete }: HandTrackingPhaseProps) {
     };
   }, [phase, checkCoinCollision]);
 
+  // Main game timer - handles both phase timer and coin expiration
   useEffect(() => {
     if (phase !== "playing") return;
 
@@ -192,25 +216,52 @@ export function HandTrackingPhase({ onPhaseComplete }: HandTrackingPhaseProps) {
     }
 
     const timer = setInterval(() => {
-      const elapsed = Math.floor(
-        (Date.now() - (phaseStartRef.current || 0)) / 1000,
-      );
+      const now = Date.now();
+      const elapsed = Math.floor((now - (phaseStartRef.current || 0)) / 1000);
       const remaining = Math.max(0, PHASE_DURATION - elapsed);
 
       setTimeRemaining(remaining);
 
+      // Update coins - calculate remaining time and mark for fade
+      setCoins((prevCoins) =>
+        prevCoins
+          .map((coin) => {
+            // Already collected - handle fade
+            if (coin.collected) {
+              // If fade just started, mark it
+              if (!coin.fadeStartTime) {
+                return { ...coin, fadeStartTime: now };
+              }
+              return coin;
+            }
+
+            // Not collected - check if expired
+            const coinElapsed = (now - coin.createdAt) / 1000;
+            const coinTimeLeft = Math.max(0, COIN_COUNTDOWN - coinElapsed);
+
+            // If coin time is up, start fade
+            if (coinTimeLeft <= 0 && !coin.fadeStartTime) {
+              return { ...coin, fadeStartTime: now };
+            }
+
+            return coin;
+          })
+          // Remove coins that finished fading
+          .filter((coin) => {
+            if (!coin.fadeStartTime) return true;
+
+            const fadeElapsed = (now - coin.fadeStartTime) / 1000;
+            return fadeElapsed < FADE_DURATION;
+          }),
+      );
+
       if (remaining === 0) {
         setPhase("results");
-        clearInterval(timer);
       }
-    }, 100);
+    }, 50); // Update 20x per second for smooth countdown
 
     return () => clearInterval(timer);
   }, [phase]);
-
-  const handleCoinExpire = (coinId: string) => {
-    setCoins((prev) => prev.filter((c) => c.id !== coinId));
-  };
 
   const handleStartGame = () => {
     setPhase("playing");
@@ -283,18 +334,25 @@ export function HandTrackingPhase({ onPhaseComplete }: HandTrackingPhaseProps) {
       />
 
       <div className="absolute inset-0">
-        {coins.map((coin) => (
-          <Coin
-            key={coin.id}
-            id={coin.id}
-            x={coin.x}
-            y={coin.y}
-            size={coin.size}
-            countdown={coin.countdown}
-            onExpire={handleCoinExpire}
-            collected={coin.collected}
-          />
-        ))}
+        {coins.map((coin) => {
+          const now = Date.now();
+          const coinElapsed = (now - coin.createdAt) / 1000;
+          const remainingTime = Math.max(0, COIN_COUNTDOWN - coinElapsed);
+          const isFading = coin.fadeStartTime !== null;
+
+          return (
+            <Coin
+              key={coin.id}
+              id={coin.id}
+              x={coin.x}
+              y={coin.y}
+              size={coin.size}
+              remainingTime={remainingTime}
+              isCollected={coin.collected}
+              isFading={isFading}
+            />
+          );
+        })}
       </div>
 
       <div className="absolute top-4 left-4 z-10">
