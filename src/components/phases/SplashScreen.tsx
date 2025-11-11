@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 interface SplashScreenProps {
-  onPhaseComplete: (nextPhase: GamePhase) => void;
+  onPhaseComplete: (nextPhase: GamePhase, coinsEarned?: number) => void;
 }
 
 export function SplashScreen({ onPhaseComplete }: SplashScreenProps) {
