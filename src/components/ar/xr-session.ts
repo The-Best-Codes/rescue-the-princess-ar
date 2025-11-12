@@ -108,7 +108,7 @@ function handleEnterVREvent() {
       (startButton as HTMLButtonElement).disabled = false;
     }
     setOverlayMessage(
-      "Move your phone slowly in a circle to map the room.",
+      "Move your phone slowly in a circle to scan the room.",
       false,
     );
     startScanningReminder();
@@ -203,7 +203,9 @@ function setupSceneEventListeners() {
         (reticle as any).object3D.position.copy(event.detail.position);
         (reticle as any).object3D.quaternion.set(0, 0, 0, 1);
       }
-      setOverlayMessage("Tap to drop coins in your space.");
+      setOverlayMessage(
+        "Point your phone at the floor until a green circle appears, then tap to place coins.",
+      );
       setReticleShouldBeVisible(true);
       if (reticle && !reticle.getAttribute("visible")) {
         reticle.setAttribute("visible", "true");

@@ -15,6 +15,7 @@ interface ARSceneProps {
 export function ARScene({ onPhaseComplete }: ARSceneProps) {
   const gameTimerRef = useRef<NodeJS.Timeout | null>(null);
   const coinsCollectedRef = useRef(0);
+  const timeRemainingRef = useRef(60);
 
   useEffect(() => {
     // Import AR modules dynamically
@@ -59,20 +60,35 @@ export function ARScene({ onPhaseComplete }: ARSceneProps) {
         }
 
         function startGameTimer() {
+          timeRemainingRef.current = 60;
+
+          // Show countdown timer
+          const overlayTimer = document.getElementById("overlay-timer");
+          if (overlayTimer) {
+            overlayTimer.style.display = "block";
+          }
+
           gameTimerRef.current = setInterval(() => {
+            timeRemainingRef.current -= 1;
+
+            // Update countdown display
+            const timerText = document.getElementById("timer-text");
+            if (timerText) {
+              timerText.textContent = timeRemainingRef.current.toString();
+            }
+
             // Check if all coins are collected or 60 seconds passed
             const remainingCoins =
               document.querySelectorAll("[coin-behavior]").length;
 
-            if (remainingCoins === 0 || coinsCollectedRef.current >= 18) {
+            if (
+              remainingCoins === 0 ||
+              coinsCollectedRef.current >= 18 ||
+              timeRemainingRef.current <= 0
+            ) {
               endGame();
             }
           }, 1000);
-
-          // Auto-end after 60 seconds
-          setTimeout(() => {
-            endGame();
-          }, 60000);
         }
 
         function endGame() {
@@ -145,10 +161,15 @@ export function ARScene({ onPhaseComplete }: ARSceneProps) {
 
         <div id="overlay" class="overlay">
           <div class="overlay__card">
-            <h1 class="overlay__title">AR Coin Hunt</h1>
+            <div class="overlay__header">
+              <h1 class="overlay__title">AR Coin Hunt</h1>
+              <div class="overlay__timer" id="overlay-timer" style="display: none;">
+                ⏰ <span id="timer-text">60</span>s
+              </div>
+            </div>
             <p class="overlay__message" id="overlay-message">
               Tap <strong>Enter AR</strong> and move your device in a circle to scan
-              the room.
+              room.
             </p>
             <button class="overlay__button" id="exit-ar">Exit AR</button>
           </div>
@@ -313,9 +334,25 @@ export function ARScene({ onPhaseComplete }: ARSceneProps) {
             pointer-events: auto;
           }
           
+          .overlay__header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+          }
+          
           .overlay__title {
-            margin: 0 0 6px;
+            margin: 0;
             font-size: 1.1rem;
+            font-weight: 600;
+          }
+          
+          .overlay__timer {
+            background: rgba(0, 0, 0, 0.5);
+            color: #fbbf24;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.9rem;
             font-weight: 600;
           }
           
