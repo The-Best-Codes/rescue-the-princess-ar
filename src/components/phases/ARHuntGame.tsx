@@ -6,6 +6,8 @@ interface ARHuntGameProps {
   hasARSupport: boolean;
 }
 
-export function ARHuntGame({ onPhaseComplete }: ARHuntGameProps) {
-  return <ARScene onPhaseComplete={onPhaseComplete} />;
+export function ARHuntGame({ onPhaseComplete, hasARSupport }: ARHuntGameProps) {
+  return (
+    <ARScene onPhaseComplete={onPhaseComplete} hasARSupport={hasARSupport} />
+  );
 }

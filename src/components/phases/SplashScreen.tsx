@@ -15,9 +15,13 @@ import {
 
 interface SplashScreenProps {
   onPhaseComplete: (nextPhase: GamePhase, coinsEarned?: number) => void;
+  updateCapabilities?: (capabilities: any) => void;
 }
 
-export function SplashScreen({ onPhaseComplete }: SplashScreenProps) {
+export function SplashScreen({
+  onPhaseComplete,
+  updateCapabilities,
+}: SplashScreenProps) {
   const {
     permissions,
     capabilities,
@@ -30,6 +34,13 @@ export function SplashScreen({ onPhaseComplete }: SplashScreenProps) {
     // Check permissions immediately on mount
     checkAllPermissions();
   }, [checkAllPermissions]);
+
+  useEffect(() => {
+    // Update game manager capabilities when they're checked
+    if (hasChecked && updateCapabilities) {
+      updateCapabilities(capabilities);
+    }
+  }, [hasChecked, capabilities, updateCapabilities]);
 
   const handleRequestPermissions = async () => {
     await requestCameraPermission();

@@ -6,7 +6,8 @@ import { FacialExpressionPhase } from "./components/phases/FacialExpressionPhase
 import { ARHuntPhase } from "./components/phases/ARHuntPhase";
 
 function App() {
-  const { gameState, setPhase, addCoins } = useGameManager();
+  const { gameState, setPhase, addCoins, updateCapabilities } =
+    useGameManager();
 
   const handlePhaseComplete = (
     nextPhase: GamePhase,
@@ -22,7 +23,12 @@ function App() {
   const renderCurrentPhase = () => {
     switch (gameState.phase) {
       case GamePhase.SPLASH:
-        return <SplashScreen onPhaseComplete={handlePhaseComplete} />;
+        return (
+          <SplashScreen
+            onPhaseComplete={handlePhaseComplete}
+            updateCapabilities={updateCapabilities}
+          />
+        );
 
       case GamePhase.HAND_TRACKING:
         return (

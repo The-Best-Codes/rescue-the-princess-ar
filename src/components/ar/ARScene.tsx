@@ -10,14 +10,39 @@ declare global {
 
 interface ARSceneProps {
   onPhaseComplete: (nextPhase: GamePhase, coinsEarned?: number) => void;
+  hasARSupport: boolean;
 }
 
-export function ARScene({ onPhaseComplete }: ARSceneProps) {
+export function ARScene({ onPhaseComplete, hasARSupport }: ARSceneProps) {
   const gameTimerRef = useRef<NodeJS.Timeout | null>(null);
   const coinsCollectedRef = useRef(0);
   const timeRemainingRef = useRef(60);
 
   useEffect(() => {
+    // If AR is not supported, show warning and skip option
+    if (!hasARSupport) {
+      const uiRoot = document.getElementById("ui-root");
+      if (uiRoot) {
+        uiRoot.innerHTML = `
+          <div class="ui__card">
+            <h1 class="ui__title">AR Not Supported</h1>
+            <p class="ui__status">Your device doesn't support augmented reality.</p>
+            <div class="ui__actions">
+              <button class="ui__button" id="skip-phase">Skip Phase</button>
+            </div>
+          </div>
+        `;
+
+        const skipButton = document.getElementById("skip-phase");
+        if (skipButton) {
+          skipButton.addEventListener("click", () => {
+            onPhaseComplete(GamePhase.WEAPON_SHOP, 10); // Give 10 coins for skipping
+          });
+        }
+      }
+      return;
+    }
+
     // Import AR modules dynamically
     const initAR = async () => {
       try {
@@ -216,27 +241,32 @@ export function ARScene({ onPhaseComplete }: ARSceneProps) {
           }
           
           .ui__card {
-            background: rgba(15, 23, 42, 0.85);
-            color: #e2e8f0;
-            border-radius: 18px;
+            background: oklch(0.98 0.015 50 / 0.85);
+            color: oklch(0.15 0.03 30);
+            border: 4px solid oklch(0.65 0.15 45);
+            border-radius: 10px;
             padding: 24px;
             max-width: 420px;
             width: min(90vw, 420px);
-            box-shadow: 0 20px 60px rgba(15, 23, 42, 0.35);
+            box-shadow: 0 4px 0 oklch(0.45 0.12 35);
             backdrop-filter: blur(14px);
+            font-family: "Courier New", monospace;
           }
           
           .ui__title {
             margin: 0 0 8px;
             font-size: 1.5rem;
-            font-weight: 600;
+            font-weight: bold;
+            color: oklch(0.65 0.15 45);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
           }
           
           .ui__status {
             margin: 0 0 18px;
             font-size: 1rem;
             line-height: 1.6;
-            color: #cbd5f5;
+            color: oklch(0.5 0.03 35);
           }
           
           .ui__actions {
@@ -247,31 +277,45 @@ export function ARScene({ onPhaseComplete }: ARSceneProps) {
           
           .ui__button {
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             padding: 12px 18px;
-            background: linear-gradient(135deg, #2563eb, #3b82f6);
-            color: white;
+            background: oklch(0.65 0.15 45);
+            color: oklch(0.98 0.01 50);
             font-size: 0.95rem;
-            font-weight: 600;
-            letter-spacing: 0.01em;
+            font-weight: bold;
+            font-family: "Courier New", monospace;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
             cursor: pointer;
-            transition: transform 0.18s ease, box-shadow 0.18s ease;
-            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.35);
+            transition: all 0.05s ease;
+            box-shadow: 0 4px 0 oklch(0.45 0.12 35);
           }
           
           .ui__button--secondary {
-            background: rgba(148, 163, 184, 0.2);
-            box-shadow: none;
+            background: oklch(0.85 0.08 50);
+            color: oklch(0.25 0.04 30);
+            box-shadow: 0 4px 0 oklch(0.65 0.12 40);
           }
           
           .ui__button--tiny {
             padding: 6px 10px;
             font-size: 0.8rem;
           }
+
+          .ui__button:hover:not(:disabled) {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 oklch(0.45 0.12 35);
+          }
+
+          .ui__button:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 oklch(0.45 0.12 35);
+          }
           
           .ui__debug {
-            background: rgba(15, 23, 42, 0.9);
-            border-radius: 12px;
+            background: oklch(0.15 0.02 40 / 0.9);
+            border: 2px solid oklch(0.65 0.15 45);
+            border-radius: 8px;
             padding: 16px;
             max-width: 500px;
             width: min(90vw, 500px);
@@ -288,17 +332,18 @@ export function ARScene({ onPhaseComplete }: ARSceneProps) {
             justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
-            color: #e2e8f0;
-            font-weight: 600;
+            color: oklch(0.9 0.03 50);
+            font-weight: bold;
+            font-family: "Courier New", monospace;
           }
           
           .ui__debug-log {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
+            background: oklch(0.1 0.02 35 / 0.5);
+            border-radius: 6px;
             padding: 12px;
-            font-family: monospace;
+            font-family: "Courier New", monospace;
             font-size: 0.8rem;
-            color: #94a3b8;
+            color: oklch(0.6 0.04 45);
             overflow-y: auto;
             max-height: 200px;
             margin: 0;
@@ -323,15 +368,17 @@ export function ARScene({ onPhaseComplete }: ARSceneProps) {
           }
           
           .overlay__card {
-            background: rgba(17, 24, 39, 0.75);
-            color: #f9fafb;
-            border-radius: 16px;
+            background: oklch(0.98 0.015 50 / 0.85);
+            color: oklch(0.15 0.03 30);
+            border: 4px solid oklch(0.65 0.15 45);
+            border-radius: 8px;
             padding: 18px 22px;
             max-width: 360px;
             width: 100%;
-            box-shadow: 0 12px 48px rgba(15, 23, 42, 0.35);
+            box-shadow: 0 4px 0 oklch(0.45 0.12 35);
             backdrop-filter: blur(12px);
             pointer-events: auto;
+            font-family: "Courier New", monospace;
           }
           
           .overlay__header {
@@ -344,35 +391,55 @@ export function ARScene({ onPhaseComplete }: ARSceneProps) {
           .overlay__title {
             margin: 0;
             font-size: 1.1rem;
-            font-weight: 600;
+            font-weight: bold;
+            color: oklch(0.65 0.15 45);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
           }
           
           .overlay__timer {
-            background: rgba(0, 0, 0, 0.5);
-            color: #fbbf24;
+            background: oklch(0.65 0.15 45);
+            color: oklch(0.98 0.01 50);
             padding: 4px 8px;
-            border-radius: 6px;
+            border-radius: 4px;
             font-size: 0.9rem;
-            font-weight: 600;
+            font-weight: bold;
+            font-family: "Courier New", monospace;
+            box-shadow: 0 2px 0 oklch(0.45 0.12 35);
           }
           
           .overlay__message {
             margin: 0 0 14px;
             font-size: 0.95rem;
             line-height: 1.5;
+            color: oklch(0.5 0.03 35);
           }
           
           .overlay__button {
             width: 100%;
             border: none;
-            border-radius: 10px;
-            background: rgba(251, 191, 36, 0.15);
-            color: #fde68a;
-            font-weight: 600;
+            border-radius: 6px;
+            background: oklch(0.75 0.12 40);
+            color: oklch(0.98 0.01 50);
+            font-weight: bold;
             font-size: 0.95rem;
+            font-family: "Courier New", monospace;
             padding: 10px 14px;
             cursor: pointer;
-            transition: background 0.2s ease;
+            transition: all 0.05s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: 0 3px 0 oklch(0.55 0.1 35);
+          }
+
+          .overlay__button:hover {
+            transform: translateY(1px);
+            box-shadow: 0 2px 0 oklch(0.55 0.1 35);
+          }
+
+          .overlay__button:active {
+            transform: translateY(3px);
+            box-shadow: 0 0px 0 oklch(0.55 0.1 35);
           }
           
           .overlay__coin {
@@ -383,6 +450,7 @@ export function ARScene({ onPhaseComplete }: ARSceneProps) {
             font-size: 4rem;
             z-index: 10;
             pointer-events: none;
+            filter: drop-shadow(0 0 20px oklch(0.65 0.15 45));
           }
           
           .overlay__coin--fade-out {

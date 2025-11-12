@@ -164,7 +164,7 @@ function registerCoinBehaviorComponent() {
   window.AFRAME.registerComponent("coin-behavior", {
     schema: {
       baseColor: { type: "color", default: "#f5c542" },
-      closeColor: { type: "color", default: "#4caf50" },
+      closeEmissive: { type: "color", default: "#ffeb3b" },
       triggerDistance: { type: "number", default: 0.35 },
     },
     init() {
@@ -192,13 +192,15 @@ function registerCoinBehaviorComponent() {
       if (distance < this.data.triggerDistance) {
         if ((this as any).state !== "close") {
           (this as any).state = "close";
-          this.el.setAttribute("material", "color", this.data.closeColor);
+          this.el.setAttribute("material", "emissive", this.data.closeEmissive);
+          this.el.setAttribute("material", "emissiveIntensity", 0.8);
           this.el.emit("coin-near");
           nearCoin = this.el;
         }
       } else if ((this as any).state !== "idle") {
         (this as any).state = "idle";
-        this.el.setAttribute("material", "color", this.data.baseColor);
+        this.el.setAttribute("material", "emissive", "#000000");
+        this.el.setAttribute("material", "emissiveIntensity", 0);
         this.el.emit("coin-far");
         if (nearCoin === this.el) {
           nearCoin = null;
@@ -221,7 +223,7 @@ function createCoin(position: any) {
   );
   coin.setAttribute(
     "coin-behavior",
-    "triggerDistance: 0.35; closeColor: #4caf50",
+    "triggerDistance: 0.35; closeEmissive: #ffeb3b",
   );
   coin.setAttribute(
     "animation__spin",
