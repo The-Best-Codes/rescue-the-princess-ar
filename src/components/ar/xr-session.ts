@@ -29,15 +29,13 @@ function startScanningReminder() {
   stopScanningReminder();
   scanningReminderTimeoutId = setTimeout(() => {
     if (!scene || !(scene as any).is("ar-mode")) return;
-    setOverlayMessage("Keep scanning so we can place the coins.");
+    setOverlayMessage("Keep scanning to place the coins.");
     scanningReminderId = setInterval(() => {
       if (!scene || !(scene as any).is("ar-mode")) {
         stopScanningReminder();
         return;
       }
-      setOverlayMessage(
-        "Keep scanning your surroundings so we can place the coins.",
-      );
+      setOverlayMessage("Keep scanning your surroundings to place the coins.");
     }, SCAN_PROMPT_REPEAT);
   }, SCAN_PROMPT_DELAY);
 }
@@ -254,7 +252,7 @@ function setupSceneEventListeners() {
       appendDebugLine("ar-hit-test-error", event.detail || "Unknown error");
       setReticleShouldBeVisible(false);
       setOverlayMessage(
-        "We lost track of the room. Try moving the device slowly.",
+        "Lost track of the room. Try moving the device slowly.",
       );
     });
   }
