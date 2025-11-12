@@ -16,6 +16,7 @@ import { GamePhase } from "../../types/game";
 import { Progress } from "../ui/progress";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
+import { playCoinCollectSound } from "../../lib/coinAudio";
 
 interface HandTrackingPhaseProps {
   onPhaseComplete: (nextPhase: GamePhase, coinsCollected: number) => void;
@@ -189,6 +190,7 @@ export function HandTrackingPhase({ onPhaseComplete }: HandTrackingPhaseProps) {
 
           if (isColliding) {
             setCoinsCollected((prev) => prev + 1);
+            playCoinCollectSound();
             return { ...coin, collected: true, fadeStartTime: Date.now() };
           }
 

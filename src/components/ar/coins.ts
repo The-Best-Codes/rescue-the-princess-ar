@@ -1,4 +1,5 @@
 import { appendDebugLine, toPositionObject } from "./debug.js";
+import { playCoinCollectSound } from "../../lib/coinAudio.js";
 
 const COIN_COUNT = 18;
 const COIN_DISTANCE_MIN = 1.0;
@@ -15,60 +16,6 @@ const coinPool: any[] = [];
 let shakeDetectionActive = false;
 let lastShakeTime = 0;
 let nearCoin: any = null;
-let coinCollectAudio: any = null;
-
-function createCoinAudio() {
-  if (coinCollectAudio) return coinCollectAudio;
-
-  const audio = new Audio("/sounds/coin-collect.mp3");
-  audio.preload = "auto";
-
-  const playSound = () => {
-    try {
-      audio.currentTime = 0;
-      audio.play().catch(() => {
-        // Fallback to oscillator if audio file fails
-        playFallbackSound();
-      });
-    } catch {
-      // Fallback to oscillator if audio file fails
-      playFallbackSound();
-    }
-  };
-
-  const playFallbackSound = () => {
-    try {
-      const audioContext = new (window.AudioContext ||
-        (window as any).webkitAudioContext)();
-      const now = audioContext.currentTime;
-      const osc = audioContext.createOscillator();
-      const gain = audioContext.createGain();
-
-      osc.connect(gain);
-      gain.connect(audioContext.destination);
-
-      gain.gain.setValueAtTime(0.3, now);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
-
-      osc.frequency.setValueAtTime(800, now);
-      osc.frequency.exponentialRampToValueAtTime(400, now + 0.1);
-
-      osc.start(now);
-      osc.stop(now + 0.5);
-    } catch (error) {
-      appendDebugLine("Audio playback error", (error as any).message);
-    }
-  };
-
-  return { play: playSound };
-}
-
-function playCollectSound() {
-  if (!coinCollectAudio) {
-    coinCollectAudio = createCoinAudio();
-  }
-  coinCollectAudio.play();
-}
 
 function startShakeDetection() {
   if (shakeDetectionActive) return;
@@ -134,7 +81,7 @@ function collectCoin(coinEl: any) {
 }
 
 function showOverlayCoin() {
-  playCollectSound();
+  playCoinCollectSound();
 
   const overlay = document.getElementById("overlay");
   let overlayCoin = document.getElementById("overlay-coin");

@@ -16,6 +16,7 @@ import { GamePhase } from "../../types/game";
 import { Progress } from "../ui/progress";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
+import { playCoinCollectSound } from "../../lib/coinAudio";
 
 interface FacialExpressionPhaseProps {
   onPhaseComplete: (nextPhase: GamePhase, coinsCollected: number) => void;
@@ -235,6 +236,7 @@ export function FacialExpressionPhase({
             if (heldDuration >= EXPRESSION_MATCH_DURATION) {
               // Collect the coin!
               setCoinsCollected((prev) => prev + 1);
+              playCoinCollectSound();
               return {
                 ...coin,
                 collected: true,
