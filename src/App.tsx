@@ -3,6 +3,7 @@ import { useGameManager } from "./hooks/useGameManager";
 import { SplashScreen } from "./components/phases/SplashScreen";
 import { HandTrackingPhase } from "./components/phases/HandTrackingPhase";
 import { FacialExpressionPhase } from "./components/phases/FacialExpressionPhase";
+import { ARHuntPhase } from "./components/phases/ARHuntPhase";
 
 function App() {
   const { gameState, setPhase, addCoins } = useGameManager();
@@ -38,6 +39,16 @@ function App() {
             onPhaseComplete={(nextPhase, coins) =>
               handlePhaseComplete(nextPhase, coins, "facialExpression")
             }
+          />
+        );
+
+      case GamePhase.AR_HUNT:
+        return (
+          <ARHuntPhase
+            onPhaseComplete={(nextPhase, coins) =>
+              handlePhaseComplete(nextPhase, coins, "arHunt")
+            }
+            hasARSupport={gameState.capabilities.ar}
           />
         );
 

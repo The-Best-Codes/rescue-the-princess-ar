@@ -141,7 +141,7 @@ export function HandTrackingPhase({ onPhaseComplete }: HandTrackingPhaseProps) {
           size:
             Math.floor(
               Math.random() * (stage.sizes[1] - stage.sizes[0]) +
-              stage.sizes[0],
+                stage.sizes[0],
             ) || 50,
           coinCountdown: COIN_COUNTDOWN,
           createdAt: Date.now(),
