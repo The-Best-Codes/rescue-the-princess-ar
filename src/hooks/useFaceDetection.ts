@@ -73,7 +73,8 @@ export function useFaceDetection(
       !videoElement ||
       !modelsLoadedRef.current ||
       !isReady ||
-      videoElement.paused
+      videoElement.paused ||
+      videoElement.readyState < 2
     ) {
       detectionLoopRef.current = requestAnimationFrame(detectExpressions);
       return;
@@ -86,10 +87,28 @@ export function useFaceDetection(
       if (lastVideoTimeRef.current !== currentTime) {
         lastVideoTimeRef.current = currentTime;
 
+        // Check if video dimensions are valid before performing detection
+        if (videoElement.videoWidth === 0 || videoElement.videoHeight === 0) {
+          detectionLoopRef.current = requestAnimationFrame(detectExpressions);
+          return;
+        }
+
         // Perform detection
         const result = await faceapi
           .detectSingleFace(videoElement, new faceapi.TinyFaceDetectorOptions())
           .withFaceExpressions();
+
+        // Clear canvas before drawing
+        if (canvasElement && canvasCtxRef.current) {
+          canvasElement.width = videoElement.videoWidth;
+          canvasElement.height = videoElement.videoHeight;
+          canvasCtxRef.current.clearRect(
+            0,
+            0,
+            canvasElement.width,
+            canvasElement.height,
+          );
+        }
 
         if (result) {
           // Convert to normalized scores
@@ -112,41 +131,25 @@ export function useFaceDetection(
           );
           setTopExpression(topEntry[0] as ExpressionType);
 
-          // Draw face detection box (optional visualization)
+          // Draw face detection box
           if (canvasElement && canvasCtxRef.current) {
-            canvasElement.width = videoElement.videoWidth;
-            canvasElement.height = videoElement.videoHeight;
+            const displaySize = {
+              width: videoElement.videoWidth,
+              height: videoElement.videoHeight,
+            };
+            const resizedDetection = faceapi.resizeResults(result, displaySize);
 
-            const resizedDetection = faceapi.resizeResults(
-              result,
-              videoElement,
-            );
-
-            // Draw detection box with subtle styling
+            // Draw detection box with blue styling
             const ctx = canvasCtxRef.current;
             const box = resizedDetection.detection.box;
 
-            ctx.strokeStyle = "rgba(0, 255, 0, 0.3)";
-            ctx.lineWidth = 2;
+            ctx.strokeStyle = "#0099ff";
+            ctx.lineWidth = 4;
             ctx.strokeRect(box.x, box.y, box.width, box.height);
-
-            // Optional: Draw landmarks
-            // Uncomment for visualization
-            // faceapi.draw.drawFaceLandmarks(canvasElement, resizedDetection);
           }
         } else {
           setCurrentExpressions(null);
           setTopExpression(null);
-
-          // Clear canvas if no face detected
-          if (canvasCtxRef.current && canvasElement) {
-            canvasCtxRef.current.clearRect(
-              0,
-              0,
-              canvasElement.width,
-              canvasElement.height,
-            );
-          }
         }
       }
     } catch (err) {
