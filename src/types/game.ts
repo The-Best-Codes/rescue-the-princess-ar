@@ -18,6 +18,20 @@ export interface DeviceCapabilities {
   faceDetection: boolean;
 }
 
+export interface Weapon {
+  id: string;
+  name: string;
+  cost: number;
+  damageBonus: number;
+  description: string;
+  icon: string;
+}
+
+export interface WeaponCategory {
+  name: string;
+  weapons: Weapon[];
+}
+
 export interface GameState {
   phase: GamePhase;
   totalCoins: number;

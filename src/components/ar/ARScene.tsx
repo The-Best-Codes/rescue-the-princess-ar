@@ -220,7 +220,7 @@ export function ARScene({ onPhaseComplete, hasARSupport }: ARSceneProps) {
             gap: 16px;
             padding: 24px;
             justify-content: center;
-            align-items: flex-start;
+            align-items: center;
             flex-direction: column;
             pointer-events: auto;
             z-index: 5;

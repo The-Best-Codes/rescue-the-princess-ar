@@ -4,10 +4,17 @@ import { SplashScreen } from "./components/phases/SplashScreen";
 import { HandTrackingPhase } from "./components/phases/HandTrackingPhase";
 import { FacialExpressionPhase } from "./components/phases/FacialExpressionPhase";
 import { ARHuntPhase } from "./components/phases/ARHuntPhase";
+import { WeaponShopPhase } from "./components/phases/WeaponShopPhase";
 
 function App() {
-  const { gameState, setPhase, addCoins, updateCapabilities } =
-    useGameManager();
+  const {
+    gameState,
+    setPhase,
+    addCoins,
+    updateCapabilities,
+    selectWeapon,
+    spendCoins,
+  } = useGameManager();
 
   const handlePhaseComplete = (
     nextPhase: GamePhase,
@@ -55,6 +62,17 @@ function App() {
               handlePhaseComplete(nextPhase, coins, "arHunt")
             }
             hasARSupport={gameState.capabilities.ar}
+          />
+        );
+
+      case GamePhase.WEAPON_SHOP:
+        return (
+          <WeaponShopPhase
+            totalCoins={gameState.totalCoins}
+            onPhaseComplete={handlePhaseComplete}
+            onWeaponSelect={selectWeapon}
+            onSpendCoins={spendCoins}
+            selectedWeapons={gameState.weapons}
           />
         );
 
