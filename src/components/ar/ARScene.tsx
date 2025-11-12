@@ -56,13 +56,11 @@ export function ARScene({ onPhaseComplete, hasARSupport }: ARSceneProps) {
           checkXRSupport,
           resetExperience,
         } = await import("./xr-session");
-        const { setupDebugButtonHandlers } = await import("./debug");
 
         // Register A-Frame components
         registerCoinBehaviorComponent();
 
         // Setup AR functionality
-        setupDebugButtonHandlers();
         setupStartButton();
         setupExitButton();
         setupSceneEventListeners();
@@ -168,19 +166,7 @@ export function ARScene({ onPhaseComplete, hasARSupport }: ARSceneProps) {
             <p class="ui__status" id="status-text">Checking device capabilities…</p>
             <div class="ui__actions">
               <button class="ui__button" id="start-ar" disabled>Enter AR</button>
-              <button class="ui__button ui__button--secondary" id="toggle-debug">
-                Show Debug
-              </button>
             </div>
-          </div>
-          <div id="debug-panel" class="ui__debug ui__debug--hidden">
-            <div class="ui__debug-head">
-              <span>Debug Log</span>
-              <button class="ui__button ui__button--tiny" id="clear-debug">
-                Clear
-              </button>
-            </div>
-            <pre id="debug-log" class="ui__debug-log">(no messages yet)</pre>
           </div>
         </div>
 
@@ -193,8 +179,7 @@ export function ARScene({ onPhaseComplete, hasARSupport }: ARSceneProps) {
               </div>
             </div>
             <p class="overlay__message" id="overlay-message">
-              Tap <strong>Enter AR</strong> and move your device in a circle to scan
-              room.
+              Tap <strong>Enter AR</strong> and follow instructions to place coins in your real space.
             </p>
             <button class="overlay__button" id="exit-ar">Exit AR</button>
           </div>

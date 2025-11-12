@@ -35,7 +35,9 @@ function startScanningReminder() {
         stopScanningReminder();
         return;
       }
-      setOverlayMessage("Keep scanning so we can place the coins.");
+      setOverlayMessage(
+        "Keep scanning your surroundings so we can place the coins.",
+      );
     }, SCAN_PROMPT_REPEAT);
   }, SCAN_PROMPT_DELAY);
 }
@@ -108,7 +110,7 @@ function handleEnterVREvent() {
       (startButton as HTMLButtonElement).disabled = false;
     }
     setOverlayMessage(
-      "Move your phone slowly in a circle to scan the room.",
+      "Move your phone slowly in a circle to scan your surroundings.",
       false,
     );
     startScanningReminder();
@@ -190,7 +192,7 @@ function setupSceneEventListeners() {
       if (reticle) {
         reticle.setAttribute("visible", "false");
       }
-      setOverlayMessage("Scanning… keep moving your device.");
+      setOverlayMessage("Scanning your surroundings… keep moving your device.");
       startScanningReminder();
       ensureReticleTracking();
     });
@@ -204,7 +206,7 @@ function setupSceneEventListeners() {
         (reticle as any).object3D.quaternion.set(0, 0, 0, 1);
       }
       setOverlayMessage(
-        "Point your phone at the floor until a green circle appears, then tap to place coins.",
+        "Point your phone at a flat surface until the green reticle appears, then tap to place coins.",
       );
       setReticleShouldBeVisible(true);
       if (reticle && !reticle.getAttribute("visible")) {
@@ -234,7 +236,7 @@ function setupSceneEventListeners() {
         scatterCoins(target);
       }
       setOverlayMessage(
-        "Collect the floating coins! Move close to change their color.",
+        "Collect the coins! Move close to make them glow, then shake to collect.",
       );
       setReticleShouldBeVisible(false);
       if (reticle) {

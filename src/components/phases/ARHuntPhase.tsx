@@ -39,17 +39,24 @@ export function ARHuntPhase({
               <h2 className="text-2xl font-semibold">AR Mode Instructions</h2>
               <div className="text-left space-y-3">
                 <p className="flex items-start">
-                  <span className="text-2xl mr-3">🚶</span>
-                  Walk around to find coins floating in real space!
-                </p>
-                <p className="flex items-start">
-                  <span className="text-2xl mr-3">✨</span>
-                  When you get close to a coin, it will glow and show "Shake to
-                  collect!"
+                  <span className="text-2xl mr-3">🎯</span>
+                  Follow the instructions to place coins in your real space
                 </p>
                 <p className="flex items-start">
                   <span className="text-2xl mr-3">📱</span>
-                  Shake your phone to collect the coin
+                  Move your phone in a circle to scan the room
+                </p>
+                <p className="flex items-start">
+                  <span className="text-2xl mr-3">👆</span>
+                  Tap the screen when the green reticle appears to place coins
+                </p>
+                <p className="flex items-start">
+                  <span className="text-2xl mr-3">✨</span>
+                  When you get close to a coin, it will glow brightly
+                </p>
+                <p className="flex items-start">
+                  <span className="text-2xl mr-3">🔊</span>
+                  Shake your phone to collect glowing coins
                 </p>
                 <p className="flex items-start">
                   <span className="text-2xl mr-3">⏰</span>

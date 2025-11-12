@@ -20,11 +20,26 @@ let coinCollectAudio: any = null;
 function createCoinAudio() {
   if (coinCollectAudio) return coinCollectAudio;
 
-  const audioContext = new (window.AudioContext ||
-    (window as any).webkitAudioContext)();
+  const audio = new Audio("/sounds/coin-collect.mp3");
+  audio.preload = "auto";
 
   const playSound = () => {
     try {
+      audio.currentTime = 0;
+      audio.play().catch(() => {
+        // Fallback to oscillator if audio file fails
+        playFallbackSound();
+      });
+    } catch {
+      // Fallback to oscillator if audio file fails
+      playFallbackSound();
+    }
+  };
+
+  const playFallbackSound = () => {
+    try {
+      const audioContext = new (window.AudioContext ||
+        (window as any).webkitAudioContext)();
       const now = audioContext.currentTime;
       const osc = audioContext.createOscillator();
       const gain = audioContext.createGain();
@@ -164,7 +179,7 @@ function registerCoinBehaviorComponent() {
   window.AFRAME.registerComponent("coin-behavior", {
     schema: {
       baseColor: { type: "color", default: "#f5c542" },
-      closeEmissive: { type: "color", default: "#ffeb3b" },
+      closeEmissive: { type: "color", default: "#f5c542" },
       triggerDistance: { type: "number", default: 0.35 },
     },
     init() {
@@ -223,7 +238,7 @@ function createCoin(position: any) {
   );
   coin.setAttribute(
     "coin-behavior",
-    "triggerDistance: 0.35; closeEmissive: #ffeb3b",
+    "triggerDistance: 0.35; closeEmissive: #f5c542",
   );
   coin.setAttribute(
     "animation__spin",
