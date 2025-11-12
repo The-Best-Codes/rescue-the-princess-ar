@@ -118,6 +118,8 @@ function handleEnterVREvent() {
 
 function handleExitVREvent() {
   appendDebugLine("exit-vr", { arMode: scene && (scene as any).is("ar-mode") });
+  // Remove fullscreen class to allow scrolling on the page
+  document.documentElement.classList.remove("a-fullscreen");
   showUI(true);
   if (startButton) {
     (startButton as HTMLButtonElement).disabled = false;

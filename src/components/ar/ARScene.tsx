@@ -25,7 +25,7 @@ export function ARScene({ onPhaseComplete, hasARSupport }: ARSceneProps) {
       const uiRoot = document.getElementById("ui-root");
       if (uiRoot) {
         uiRoot.innerHTML = `
-          <div class="ui__card">
+          <div class="ui__card" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
             <h1 class="ui__title">AR Not Supported</h1>
             <p class="ui__status">Your device doesn't support augmented reality.</p>
             <div class="ui__actions">
@@ -37,6 +37,8 @@ export function ARScene({ onPhaseComplete, hasARSupport }: ARSceneProps) {
         const skipButton = document.getElementById("skip-phase");
         if (skipButton) {
           skipButton.addEventListener("click", () => {
+            // Remove fullscreen class if it was added
+            document.documentElement.classList.remove("a-fullscreen");
             onPhaseComplete(GamePhase.WEAPON_SHOP, 10); // Give 10 coins for skipping
           });
         }

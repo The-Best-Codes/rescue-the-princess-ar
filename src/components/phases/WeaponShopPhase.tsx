@@ -4,7 +4,7 @@ import { weaponCategories } from "../../data/weapons";
 import { WeaponCard } from "../WeaponCard";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
-import { Coins, ShieldIcon, Sword, HardHat } from "lucide-react";
+import { Coins } from "lucide-react";
 import { cn } from "../../lib/utils";
 
 interface WeaponShopPhaseProps {
@@ -121,20 +121,6 @@ export function WeaponShopPhase({
     onPhaseComplete(GamePhase.MONSTER_BATTLE);
   };
 
-  // Get category icon
-  const getCategoryIcon = (categoryName: string) => {
-    switch (categoryName.toLowerCase()) {
-      case "shields":
-        return <ShieldIcon className="w-6 h-6" />;
-      case "swords":
-        return <Sword className="w-6 h-6" />;
-      case "helmets":
-        return <HardHat className="w-6 h-6" />;
-      default:
-        return null;
-    }
-  };
-
   if (showInstructions) {
     return (
       <div className="min-h-[100svh] bg-background flex items-center justify-center p-4">
@@ -204,10 +190,7 @@ export function WeaponShopPhase({
             return (
               <Card key={category.name} className="retro-card">
                 <CardHeader className="text-center pb-4">
-                  <CardTitle className="flex items-center justify-center space-x-2 text-lg">
-                    {getCategoryIcon(category.name)}
-                    <span>{category.name}</span>
-                  </CardTitle>
+                  <CardTitle className="text-lg">{category.name}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {category.weapons.map((weapon) => (
