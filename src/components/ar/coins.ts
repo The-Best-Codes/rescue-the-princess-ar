@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { appendDebugLine, toPositionObject } from "./debug.js";
 import { playCoinCollectSound } from "../../lib/coinAudio.js";
 

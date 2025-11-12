@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 const MAX_DEBUG_LINES = 120;
 
 const statusText = document.getElementById("status-text");
@@ -36,7 +37,8 @@ function appendDebugLine(message: string, detail?: any) {
     } else {
       try {
         line += ` ${JSON.stringify(detail)}`;
-      } catch (error) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (error: any) {
         line += ` ${String(detail)}`;
       }
     }

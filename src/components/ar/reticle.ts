@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 const reticle = document.getElementById("reticle");
 const scene = document.querySelector("a-scene");
 

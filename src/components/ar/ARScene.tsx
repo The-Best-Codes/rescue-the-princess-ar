@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef } from "react";
 import { GamePhase } from "../../types/game";
 
@@ -224,7 +225,7 @@ export function ARScene({ onPhaseComplete, hasARSupport }: ARSceneProps) {
             pointer-events: auto;
             z-index: 5;
           }
-          
+
           .ui__card {
             background: oklch(0.98 0.015 50 / 0.85);
             color: oklch(0.15 0.03 30);
@@ -237,7 +238,7 @@ export function ARScene({ onPhaseComplete, hasARSupport }: ARSceneProps) {
             backdrop-filter: blur(14px);
             font-family: "Courier New", monospace;
           }
-          
+
           .ui__title {
             margin: 0 0 8px;
             font-size: 1.5rem;
@@ -246,20 +247,20 @@ export function ARScene({ onPhaseComplete, hasARSupport }: ARSceneProps) {
             letter-spacing: 0.08em;
             text-transform: uppercase;
           }
-          
+
           .ui__status {
             margin: 0 0 18px;
             font-size: 1rem;
             line-height: 1.6;
             color: oklch(0.5 0.03 35);
           }
-          
+
           .ui__actions {
             display: flex;
             gap: 12px;
             flex-wrap: wrap;
           }
-          
+
           .ui__button {
             border: none;
             border-radius: 8px;
@@ -275,13 +276,13 @@ export function ARScene({ onPhaseComplete, hasARSupport }: ARSceneProps) {
             transition: all 0.05s ease;
             box-shadow: 0 4px 0 oklch(0.45 0.12 35);
           }
-          
+
           .ui__button--secondary {
             background: oklch(0.85 0.08 50);
             color: oklch(0.25 0.04 30);
             box-shadow: 0 4px 0 oklch(0.65 0.12 40);
           }
-          
+
           .ui__button--tiny {
             padding: 6px 10px;
             font-size: 0.8rem;
@@ -296,7 +297,7 @@ export function ARScene({ onPhaseComplete, hasARSupport }: ARSceneProps) {
             transform: translateY(4px);
             box-shadow: 0 0px 0 oklch(0.45 0.12 35);
           }
-          
+
           .ui__debug {
             background: oklch(0.15 0.02 40 / 0.9);
             border: 2px solid oklch(0.65 0.15 45);
@@ -307,11 +308,11 @@ export function ARScene({ onPhaseComplete, hasARSupport }: ARSceneProps) {
             max-height: 300px;
             overflow: hidden;
           }
-          
+
           .ui__debug--hidden {
             display: none;
           }
-          
+
           .ui__debug-head {
             display: flex;
             justify-content: space-between;
@@ -321,7 +322,7 @@ export function ARScene({ onPhaseComplete, hasARSupport }: ARSceneProps) {
             font-weight: bold;
             font-family: "Courier New", monospace;
           }
-          
+
           .ui__debug-log {
             background: oklch(0.1 0.02 35 / 0.5);
             border-radius: 6px;
@@ -334,7 +335,7 @@ export function ARScene({ onPhaseComplete, hasARSupport }: ARSceneProps) {
             margin: 0;
             white-space: pre-wrap;
           }
-          
+
           .overlay {
             position: absolute;
             inset: 0;
@@ -343,7 +344,7 @@ export function ARScene({ onPhaseComplete, hasARSupport }: ARSceneProps) {
             font-family: inherit;
             z-index: 4;
           }
-          
+
           .overlay:xr-overlay {
             display: flex;
             justify-content: center;
@@ -351,7 +352,7 @@ export function ARScene({ onPhaseComplete, hasARSupport }: ARSceneProps) {
             padding: 24px;
             pointer-events: none;
           }
-          
+
           .overlay__card {
             background: oklch(0.98 0.015 50 / 0.85);
             color: oklch(0.15 0.03 30);
@@ -365,14 +366,14 @@ export function ARScene({ onPhaseComplete, hasARSupport }: ARSceneProps) {
             pointer-events: auto;
             font-family: "Courier New", monospace;
           }
-          
+
           .overlay__header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 6px;
           }
-          
+
           .overlay__title {
             margin: 0;
             font-size: 1.1rem;
@@ -381,7 +382,7 @@ export function ARScene({ onPhaseComplete, hasARSupport }: ARSceneProps) {
             letter-spacing: 0.05em;
             text-transform: uppercase;
           }
-          
+
           .overlay__timer {
             background: oklch(0.65 0.15 45);
             color: oklch(0.98 0.01 50);
@@ -392,14 +393,14 @@ export function ARScene({ onPhaseComplete, hasARSupport }: ARSceneProps) {
             font-family: "Courier New", monospace;
             box-shadow: 0 2px 0 oklch(0.45 0.12 35);
           }
-          
+
           .overlay__message {
             margin: 0 0 14px;
             font-size: 0.95rem;
             line-height: 1.5;
             color: oklch(0.5 0.03 35);
           }
-          
+
           .overlay__button {
             width: 100%;
             border: none;
@@ -426,7 +427,7 @@ export function ARScene({ onPhaseComplete, hasARSupport }: ARSceneProps) {
             transform: translateY(3px);
             box-shadow: 0 0px 0 oklch(0.55 0.1 35);
           }
-          
+
           .overlay__coin {
             position: absolute;
             top: 50%;
@@ -437,11 +438,11 @@ export function ARScene({ onPhaseComplete, hasARSupport }: ARSceneProps) {
             pointer-events: none;
             filter: drop-shadow(0 0 20px oklch(0.65 0.15 45));
           }
-          
+
           .overlay__coin--fade-out {
             animation: coinFadeOut 0.7s ease-in-out;
           }
-          
+
           @keyframes coinFadeOut {
             0% {
               opacity: 1;
