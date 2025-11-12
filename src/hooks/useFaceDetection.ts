@@ -100,8 +100,8 @@ export function useFaceDetection(
 
         // Clear canvas before drawing
         if (canvasElement && canvasCtxRef.current) {
-          canvasElement.width = videoElement.videoWidth;
-          canvasElement.height = videoElement.videoHeight;
+          canvasElement.width = window.innerWidth;
+          canvasElement.height = window.innerHeight;
           canvasCtxRef.current.clearRect(
             0,
             0,
@@ -143,9 +143,22 @@ export function useFaceDetection(
             const ctx = canvasCtxRef.current;
             const box = resizedDetection.detection.box;
 
+            // Get video element position and size on screen
+            const videoRect = videoElement.getBoundingClientRect();
+
+            // Calculate scale factors to map video coordinates to screen coordinates
+            const scaleX = videoRect.width / videoElement.videoWidth;
+            const scaleY = videoRect.height / videoElement.videoHeight;
+
+            // Scale and position the box to match the video's screen position
+            const screenX = videoRect.left + box.x * scaleX;
+            const screenY = videoRect.top + box.y * scaleY;
+            const screenWidth = box.width * scaleX;
+            const screenHeight = box.height * scaleY;
+
             ctx.strokeStyle = "#0099ff";
             ctx.lineWidth = 4;
-            ctx.strokeRect(box.x, box.y, box.width, box.height);
+            ctx.strokeRect(screenX, screenY, screenWidth, screenHeight);
           }
         } else {
           setCurrentExpressions(null);
