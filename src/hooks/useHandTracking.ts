@@ -125,7 +125,7 @@ export function useHandTracking(
               (indexTip.x - thumbTip.x) * window.innerWidth,
               (indexTip.y - thumbTip.y) * window.innerHeight,
             );
-            const isCurrentlyPinching = distance < 50; // 50px threshold for pinch
+            const isCurrentlyPinching = distance < 100; // 100px threshold for pinch (more lax)
             setIsPinching(isCurrentlyPinching);
             setIndexFingerPosition(indexTip);
             setThumbPosition(thumbTip);
