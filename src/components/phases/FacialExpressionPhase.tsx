@@ -344,7 +344,7 @@ export function FacialExpressionPhase({
   if (phase === "instructions") {
     return (
       <InstructionsScreen
-        title="FACIAL EXPRESSIONS"
+        title="EMOJI MIMIC"
         instructions={instructions}
         onStart={handleStartGame}
         isLoading={!isReady}
