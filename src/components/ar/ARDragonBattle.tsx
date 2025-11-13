@@ -26,6 +26,10 @@ export function ARDragonBattle({
 }: ARDragonBattleProps) {
   const dragonHealthRef = useRef(500);
   const battleTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const eventHandlersRef = useRef<{
+    dragonDamaged: ((event: any) => void) | null;
+    dragonDefeated: (() => void) | null;
+  }>({ dragonDamaged: null, dragonDefeated: null });
 
   useEffect(() => {
     // If AR is not supported, show warning and skip option
@@ -98,47 +102,13 @@ export function ARDragonBattle({
         }
 
         function startBattle() {
-          // Show battle UI
-          const overlayHealth = document.getElementById("overlay-health");
-          if (overlayHealth) {
-            overlayHealth.style.display = "block";
-            updateHealthDisplay();
-          }
-
+          // Battle started - no health bar needed since damage numbers are shown
           // Start monitoring dragon health
           battleTimerRef.current = setInterval(() => {
-            updateHealthDisplay();
-
             if (dragonHealthRef.current <= 0) {
               endBattle(true); // Victory
             }
           }, 100);
-        }
-
-        function updateHealthDisplay() {
-          const healthText = document.getElementById("health-text");
-          const healthBar = document.getElementById("health-bar-fill");
-
-          if (healthText) {
-            healthText.textContent = `${Math.max(0, dragonHealthRef.current)}`;
-          }
-
-          if (healthBar) {
-            const healthPercent = Math.max(
-              0,
-              (dragonHealthRef.current / 500) * 100,
-            );
-            healthBar.style.width = `${healthPercent}%`;
-
-            // Change color based on health
-            if (healthPercent > 60) {
-              healthBar.style.backgroundColor = "#22c55e"; // Green
-            } else if (healthPercent > 30) {
-              healthBar.style.backgroundColor = "#eab308"; // Yellow
-            } else {
-              healthBar.style.backgroundColor = "#ef4444"; // Red
-            }
-          }
         }
 
         function endBattle(victory: boolean) {
@@ -156,29 +126,53 @@ export function ARDragonBattle({
 
             // Wait for death animation to complete (1500ms) then exit AR and transition
             setTimeout(() => {
-              // Exit AR session first
-              const scene = document.querySelector("a-scene");
-              const session = (scene as any)?.renderer?.xr?.getSession?.();
-              if (session) {
-                session.end().then(() => {
-                  // Remove fullscreen class
-                  document.documentElement.classList.remove("a-fullscreen");
-                  // Transition to victory phase
-                  setTimeout(() => {
-                    onPhaseComplete(GamePhase.VICTORY);
-                  }, 500);
-                });
-              } else {
-                // If no session, just transition
-                document.documentElement.classList.remove("a-fullscreen");
-                onPhaseComplete(GamePhase.VICTORY);
-              }
+              exitARAndTransitionToVictory();
             }, 2000); // Wait for death animation (1500ms) + extra time
           }
         }
 
+        function exitARAndTransitionToVictory() {
+          try {
+            const scene = document.querySelector("a-scene");
+
+            // Try to get and end the XR session
+            if (scene && (scene as any).renderer?.xr) {
+              const session = (scene as any).renderer.xr.getSession();
+
+              if (session) {
+                session
+                  .end()
+                  .then(() => {
+                    cleanupAndTransition();
+                  })
+                  .catch((err: any) => {
+                    console.error("Error ending XR session:", err);
+                    cleanupAndTransition();
+                  });
+              } else {
+                cleanupAndTransition();
+              }
+            } else {
+              cleanupAndTransition();
+            }
+          } catch (error) {
+            console.error("Error in exitARAndTransitionToVictory:", error);
+            cleanupAndTransition();
+          }
+        }
+
+        function cleanupAndTransition() {
+          // Remove fullscreen class
+          document.documentElement.classList.remove("a-fullscreen");
+
+          // Small delay to ensure AR has fully exited
+          setTimeout(() => {
+            onPhaseComplete(GamePhase.VICTORY);
+          }, 300);
+        }
+
         // Track dragon damage
-        document.addEventListener("dragon-damaged", (event: any) => {
+        eventHandlersRef.current.dragonDamaged = (event: any) => {
           const damage = event.detail?.damage || 10;
           dragonHealthRef.current = Math.max(
             0,
@@ -186,10 +180,24 @@ export function ARDragonBattle({
           );
 
           if (dragonHealthRef.current <= 0) {
-            // Dragon defeated
-            document.dispatchEvent(new CustomEvent("dragon-defeated"));
+            // Dragon defeated - trigger victory
+            endBattle(true);
           }
-        });
+        };
+
+        eventHandlersRef.current.dragonDefeated = () => {
+          // Additional handler for dragon-defeated event from dragon component
+          endBattle(true);
+        };
+
+        document.addEventListener(
+          "dragon-damaged",
+          eventHandlersRef.current.dragonDamaged,
+        );
+        document.addEventListener(
+          "dragon-defeated",
+          eventHandlersRef.current.dragonDefeated,
+        );
       } catch (error) {
         alert(`Failed to initialize AR: ${error}`);
         console.error("Failed to initialize AR:", error);
@@ -213,6 +221,20 @@ export function ARDragonBattle({
       if (battleTimerRef.current) {
         clearInterval(battleTimerRef.current);
       }
+
+      // Clean up event listeners
+      if (eventHandlersRef.current.dragonDamaged) {
+        document.removeEventListener(
+          "dragon-damaged",
+          eventHandlersRef.current.dragonDamaged,
+        );
+      }
+      if (eventHandlersRef.current.dragonDefeated) {
+        document.removeEventListener(
+          "dragon-defeated",
+          eventHandlersRef.current.dragonDefeated,
+        );
+      }
     };
   }, [onPhaseComplete, hasARSupport, selectedWeapons]);
 
@@ -232,15 +254,7 @@ export function ARDragonBattle({
 
         <div id="overlay" class="overlay">
           <div class="overlay__card">
-            <div class="overlay__header">
-              <h1 class="overlay__title">Dragon Battle</h1>
-              <div class="overlay__health" id="overlay-health" style="display: none;">
-                Dragon: <span id="health-text">500</span> HP
-                <div class="health-bar">
-                  <div id="health-bar-fill" class="health-bar-fill"></div>
-                </div>
-              </div>
-            </div>
+            <h1 class="overlay__title">Dragon Battle</h1>
             <p class="overlay__message" id="overlay-message">
               Tap <strong>Enter AR</strong> and find a safe space to place the dragon.
             </p>
@@ -380,51 +394,13 @@ export function ARDragonBattle({
             font-family: "Courier New", monospace;
           }
 
-          .overlay__header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 6px;
-            flex-wrap: wrap;
-            gap: 8px;
-          }
-
           .overlay__title {
-            margin: 0;
+            margin: 0 0 6px;
             font-size: 1.1rem;
             font-weight: bold;
             color: oklch(0.65 0.15 45);
             letter-spacing: 0.05em;
             text-transform: uppercase;
-          }
-
-          .overlay__health {
-            background: oklch(0.65 0.15 45);
-            color: oklch(0.98 0.01 50);
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            font-family: "Courier New", monospace;
-            box-shadow: 0 2px 0 oklch(0.45 0.12 35);
-            min-width: 120px;
-          }
-
-          .health-bar {
-            width: 100%;
-            height: 6px;
-            background: rgba(255,255,255,0.3);
-            border-radius: 3px;
-            margin-top: 4px;
-            overflow: hidden;
-          }
-
-          .health-bar-fill {
-            height: 100%;
-            width: 100%;
-            background: #22c55e;
-            transition: width 0.3s ease, background-color 0.3s ease;
-            border-radius: 3px;
           }
 
           .overlay__message {
