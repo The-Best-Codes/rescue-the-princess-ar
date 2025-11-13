@@ -223,7 +223,7 @@ export function SplashScreen({
                       className="retro-button text-xs px-3 py-2"
                       variant="outline"
                     >
-                      🐉 DEBUG: Skip to Dragon Battle
+                      DEBUG: Skip to Dragon Battle
                     </Button>
                   </div>
                 </div>

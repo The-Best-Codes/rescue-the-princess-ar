@@ -148,7 +148,7 @@ export function ARDragonBattle({
             const overlayMessage = document.getElementById("overlay-message");
             if (overlayMessage) {
               overlayMessage.innerHTML =
-                "🎉 <strong>Victory!</strong> The dragon has been defeated!";
+                "<strong>Victory!</strong> The dragon has been defeated!";
             }
 
             // Transition to victory phase after delay
@@ -216,7 +216,7 @@ export function ARDragonBattle({
             <div class="overlay__header">
               <h1 class="overlay__title">Dragon Battle</h1>
               <div class="overlay__health" id="overlay-health" style="display: none;">
-                🐉 <span id="health-text">100</span> HP
+                Dragon: <span id="health-text">100</span> HP
                 <div class="health-bar">
                   <div id="health-bar-fill" class="health-bar-fill"></div>
                 </div>

@@ -36,7 +36,7 @@ export function MonsterBattlePhase({
               <div className="text-center space-y-4">
                 <div className="text-lg">
                   <p className="font-bold mb-4">
-                    🐉 A fearsome dragon blocks your path to the princess!
+                    A fearsome dragon blocks your path to the princess!
                   </p>
                 </div>
 
@@ -61,8 +61,8 @@ export function MonsterBattlePhase({
 
                   <div className="space-y-2 text-left text-sm">
                     <p>• Find a safe space and place the dragon in AR</p>
-                    <p>• Tap rapidly on the dragon to attack</p>
-                    <p>• Watch damage numbers appear where you tap</p>
+                    <p>• Shake your phone to attack the dragon</p>
+                    <p>• Watch damage numbers appear with each attack</p>
                     <p>• Defeat the dragon to rescue the princess!</p>
                   </div>
                 </div>

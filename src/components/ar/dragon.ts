@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { appendDebugLine, toPositionObject } from "./debug.js";
+import {
+  startShakeDetection,
+  stopShakeDetection,
+} from "../../lib/shakeDetection.js";
 
 const DRAGON_SCALE = 0.003; // Scale up 3x from 0.001
 const DRAGON_HEALTH = 100;
@@ -7,6 +11,8 @@ const BASE_DAMAGE = 10;
 
 const dragonRoot = document.getElementById("dragon-root");
 let dragonEntity: any = null;
+
+// Dragon damage and shake detection
 
 function registerDragonBehaviorComponent() {
   if (!window.AFRAME) return;
@@ -21,55 +27,8 @@ function registerDragonBehaviorComponent() {
       (this as any).damageBonus = this.data.damageBonus;
       (this as any).isDead = false;
 
-      // Set up click/tap handler
-      this.el.addEventListener("click", (event: any) => {
-        if ((this as any).isDead) return;
-
-        const damage = BASE_DAMAGE + (this as any).damageBonus;
-        (this as any).health -= damage;
-
-        // Get click position for damage number
-        const intersection = event.detail.intersection;
-        const clickPosition = { x: 0, y: 0 };
-
-        if (intersection && intersection.point) {
-          // Convert 3D position to screen position for damage number
-          const camera = document.getElementById("player");
-          if (camera) {
-            const vector = new (window as any).THREE.Vector3();
-            vector.copy(intersection.point);
-            vector.project((camera as any).getObject3D("camera"));
-
-            // Convert to screen coordinates
-            const halfWidth = window.innerWidth / 2;
-            const halfHeight = window.innerHeight / 2;
-            clickPosition.x = vector.x * halfWidth + halfWidth;
-            clickPosition.y = -(vector.y * halfHeight) + halfHeight;
-          }
-        }
-
-        // Show damage number
-        showDamageNumber(damage, clickPosition);
-
-        // Emit damage event
-        document.dispatchEvent(
-          new CustomEvent("dragon-damaged", {
-            detail: { damage, health: (this as any).health },
-          }),
-        );
-
-        // Check if dead
-        if ((this as any).health <= 0 && !(this as any).isDead) {
-          (this as any).isDead = true;
-          this.killDragon();
-        }
-
-        appendDebugLine("Dragon damaged", {
-          damage,
-          remaining: (this as any).health,
-          position: clickPosition,
-        });
-      });
+      // Store reference for shake detection
+      (this as any).damageElement = this.el;
     },
 
     killDragon() {
@@ -95,6 +54,40 @@ function registerDragonBehaviorComponent() {
         appendDebugLine("Dragon defeated!", {});
       }
     },
+  });
+}
+
+function damageDragon() {
+  if (!dragonEntity) return;
+
+  const dragonComponent = dragonEntity.components["dragon-behavior"];
+  if (!dragonComponent || dragonComponent.isDead) return;
+
+  const damage = BASE_DAMAGE + dragonComponent.damageBonus;
+  dragonComponent.health -= damage;
+
+  // Show damage number in center of screen since we can't get exact position from shake
+  showDamageNumber(damage, {
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2,
+  });
+
+  // Emit damage event
+  document.dispatchEvent(
+    new CustomEvent("dragon-damaged", {
+      detail: { damage, health: dragonComponent.health },
+    }),
+  );
+
+  // Check if dead
+  if (dragonComponent.health <= 0 && !dragonComponent.isDead) {
+    dragonComponent.isDead = true;
+    dragonComponent.killDragon();
+  }
+
+  appendDebugLine("Dragon damaged by shake", {
+    damage,
+    remaining: dragonComponent.health,
   });
 }
 
@@ -138,37 +131,7 @@ function createDragon(position: any, damageBonus: number = 0) {
       `health: ${DRAGON_HEALTH}; damageBonus: ${damageBonus}`,
     );
 
-    // Add a larger invisible collision box for easier tapping
-    const clickableArea = document.createElement("a-entity");
-    clickableArea.setAttribute(
-      "geometry",
-      "primitive: box; width: 0.3; height: 0.3; depth: 0.3",
-    );
-    clickableArea.setAttribute(
-      "material",
-      "opacity: 0; transparent: true; visible: false",
-    );
-    clickableArea.setAttribute("position", "0 0.15 0"); // Center it above the dragon
-
-    // Make the clickable area handle the clicks
-    clickableArea.setAttribute("raycaster-target", "");
-    clickableArea.setAttribute("class", "dragon-clickable");
-
-    // Forward click events from clickable area to dragon
-    clickableArea.addEventListener("click", (event: any) => {
-      event.stopPropagation(); // Prevent event bubbling
-      event.preventDefault(); // Prevent default behavior
-      
-      // Stop the event from reaching the AR hit test system
-      event.stopImmediatePropagation();
-      
-      // Forward to dragon using A-Frame event system
-      dragon.dispatchEvent(new CustomEvent("click", { detail: event.detail }));
-      appendDebugLine("Dragon click area tapped", {});
-    });
-
-    // Add clickable area as child of dragon
-    dragon.appendChild(clickableArea);
+    // No need for clickable area since we're using shake detection
 
     // Add a subtle animation to the dragon model itself
     dragon.setAttribute(
@@ -186,13 +149,16 @@ function createDragon(position: any, damageBonus: number = 0) {
 
       // Emit placement event
       document.dispatchEvent(new CustomEvent("dragon-placed"));
-      
+
       // After placing dragon, modify the dragon-root to prevent further AR hit testing
       // This should prevent subsequent taps from triggering placement
       setTimeout(() => {
         if (dragonRoot) {
           dragonRoot.removeAttribute("ar-hit-test");
-          appendDebugLine("Removed ar-hit-test from dragon-root after placement", {});
+          appendDebugLine(
+            "Removed ar-hit-test from dragon-root after placement",
+            {},
+          );
         }
       }, 100);
 
@@ -212,23 +178,30 @@ function createDragon(position: any, damageBonus: number = 0) {
 
 function clearDragon() {
   try {
+    stopDragonShakeDetection();
+
     if (dragonEntity && dragonEntity.parentNode) {
       dragonEntity.parentNode.removeChild(dragonEntity);
     }
     dragonEntity = null;
-    
-    // Restore ar-hit-test attribute for next session
-    const dragonRoot = document.getElementById("dragon-root");
-    if (dragonRoot && !dragonRoot.hasAttribute("ar-hit-test")) {
-      // Only restore if it was removed
-      appendDebugLine("Restoring ar-hit-test to dragon-root", {});
-    }
-    
+
     appendDebugLine("Dragon cleared", {});
   } catch (error) {
     alert(`Error clearing dragon: ${error}`);
     console.error("Error clearing dragon:", error);
   }
+}
+
+function startDragonShakeDetection() {
+  startShakeDetection({
+    onShake: damageDragon,
+  });
+  appendDebugLine("Dragon shake detection started", {});
+}
+
+function stopDragonShakeDetection() {
+  stopShakeDetection();
+  appendDebugLine("Dragon shake detection stopped", {});
 }
 
 function placeDragon(origin: any, damageBonus: number = 0) {
@@ -238,11 +211,14 @@ function placeDragon(origin: any, damageBonus: number = 0) {
     // Place dragon at the reticle position (floor level)
     const dragonPosition = new (window as any).THREE.Vector3();
     dragonPosition.copy(origin);
+    // Adjust position slightly to the left to fix offset issue
+    dragonPosition.x -= 0.1;
     // Keep at floor level - no Y offset
-    
-    // Positioning looks correct based on debug - removing alert
 
     createDragon(dragonPosition, damageBonus);
+
+    // Start shake detection after dragon is placed
+    startDragonShakeDetection();
 
     appendDebugLine("Dragon placed", toPositionObject(dragonPosition));
   } catch (error) {
@@ -280,4 +256,5 @@ export {
   placeDragon,
   clearDragon,
   calculateDamageBonus,
+  stopDragonShakeDetection,
 };

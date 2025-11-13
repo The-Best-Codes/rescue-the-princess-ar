@@ -255,13 +255,11 @@ function setupDragonSceneEventListeners() {
 
       // Mark dragon as placed
       dragonPlaced = true;
-      
+
       // The dragonPlaced flag should prevent further hit test processing
       // Don't modify AR attributes as it might break WebXR
 
-      setOverlayMessage(
-        "🐉 Attack the dragon! Tap rapidly on it to deal damage!",
-      );
+      setOverlayMessage("Attack the dragon! Shake your phone to deal damage.");
       setReticleShouldBeVisible(false);
       if (reticle) {
         reticle.removeAttribute("animation__pulse");
