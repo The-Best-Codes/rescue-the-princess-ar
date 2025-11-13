@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef } from "react";
 import { GamePhase } from "../../types/game";
+import { comprehensiveCleanup } from "./cleanup";
 
 declare global {
   interface Window {
@@ -248,6 +249,9 @@ export function ARDragonBattle({
           eventHandlersRef.current.dragonDefeated,
         );
       }
+
+      // Comprehensive cleanup of AR resources
+      comprehensiveCleanup();
     };
   }, [onPhaseComplete, hasARSupport, selectedWeapons]);
 

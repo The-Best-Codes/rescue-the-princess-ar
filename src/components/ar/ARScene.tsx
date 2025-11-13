@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef } from "react";
 import { GamePhase } from "../../types/game";
+import { comprehensiveCleanup } from "./cleanup";
 
 declare global {
   interface Window {
@@ -156,6 +157,9 @@ export function ARScene({ onPhaseComplete, hasARSupport }: ARSceneProps) {
       if (gameTimerRef.current) {
         clearInterval(gameTimerRef.current);
       }
+
+      // Comprehensive cleanup of AR resources
+      comprehensiveCleanup();
     };
   }, [onPhaseComplete]);
 
