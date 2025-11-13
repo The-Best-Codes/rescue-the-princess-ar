@@ -85,8 +85,8 @@ export function SplashScreen({
             {/* Story */}
             <div className="text-center space-y-2">
               <p className="text-base text-foreground leading-relaxed">
-                A monster has kidnapped the princess! Collect coins by playing 3
-                mini-games. Buy weapons to defeat the monster and save the
+                A dragon has kidnapped the princess! Collect coins by playing 3
+                mini-games. Buy weapons to defeat the dragon and save the
                 princess.
               </p>
             </div>
