@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const MAX_DEBUG_LINES = 120;
 
-const statusText = document.getElementById("status-text");
-const overlayMessage = document.getElementById("overlay-message");
-const toggleDebugBtn = document.getElementById("toggle-debug");
-const debugPanel = document.getElementById("debug-panel");
-const debugLogEl = document.getElementById("debug-log");
-const clearDebugBtn = document.getElementById("clear-debug");
-const uiRoot = document.getElementById("ui-root");
+// Helper functions to get DOM elements dynamically
+const getStatusText = () => document.getElementById("status-text");
+const getOverlayMessage = () => document.getElementById("overlay-message");
+const getToggleDebugBtn = () => document.getElementById("toggle-debug");
+const getDebugPanel = () => document.getElementById("debug-panel");
+const getDebugLogEl = () => document.getElementById("debug-log");
+const getClearDebugBtn = () => document.getElementById("clear-debug");
+const getUiRoot = () => document.getElementById("ui-root");
 
 const debugMessages: string[] = [];
 
@@ -47,6 +48,7 @@ function appendDebugLine(message: string, detail?: any) {
   if (debugMessages.length > MAX_DEBUG_LINES) {
     debugMessages.shift();
   }
+  const debugLogEl = getDebugLogEl();
   if (debugLogEl) {
     debugLogEl.textContent = debugMessages.join("\n");
   }
@@ -54,12 +56,14 @@ function appendDebugLine(message: string, detail?: any) {
 
 function clearDebug() {
   debugMessages.length = 0;
+  const debugLogEl = getDebugLogEl();
   if (debugLogEl) {
     debugLogEl.textContent = "(no messages yet)";
   }
 }
 
 function setStatus(message: string) {
+  const statusText = getStatusText();
   if (statusText) {
     statusText.textContent = message;
   }
@@ -67,6 +71,7 @@ function setStatus(message: string) {
 }
 
 function setOverlayMessage(message: string, useHTML = false) {
+  const overlayMessage = getOverlayMessage();
   if (overlayMessage) {
     if (useHTML) {
       overlayMessage.innerHTML = message;
@@ -77,6 +82,7 @@ function setOverlayMessage(message: string, useHTML = false) {
 }
 
 function showUI(show: boolean) {
+  const uiRoot = getUiRoot();
   if (uiRoot) {
     if (show) {
       uiRoot.classList.remove("ui--hidden");
@@ -87,6 +93,8 @@ function showUI(show: boolean) {
 }
 
 function setupDebugButtonHandlers() {
+  const toggleDebugBtn = getToggleDebugBtn();
+  const debugPanel = getDebugPanel();
   if (toggleDebugBtn && debugPanel) {
     toggleDebugBtn.addEventListener("click", () => {
       const hidden = debugPanel.classList.toggle("ui__debug--hidden");
@@ -94,6 +102,7 @@ function setupDebugButtonHandlers() {
     });
   }
 
+  const clearDebugBtn = getClearDebugBtn();
   if (clearDebugBtn) {
     clearDebugBtn.addEventListener("click", () => {
       clearDebug();
@@ -111,6 +120,4 @@ export {
   showUI,
   setupDebugButtonHandlers,
   INITIAL_OVERLAY_HTML,
-  statusText,
-  overlayMessage,
 };
