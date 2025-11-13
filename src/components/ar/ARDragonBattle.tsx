@@ -205,17 +205,30 @@ export function ARDragonBattle({
       }
     };
 
-    // Wait for A-Frame to be available
-    if (window.AFRAME) {
-      initAR();
-    } else {
-      const checkAFrame = setInterval(() => {
-        if (window.AFRAME) {
-          clearInterval(checkAFrame);
-          initAR();
-        }
-      }, 100);
-    }
+    // Wait for A-Frame to be available and ensure scene is ready
+    const waitForAFrameAndScene = () => {
+      if (window.AFRAME) {
+        // Give a small delay to ensure any previous AR session is fully cleaned up
+        setTimeout(() => {
+          const scene = document.querySelector("a-scene");
+          if (scene) {
+            initAR();
+          } else {
+            // Scene not ready yet, wait a bit more
+            setTimeout(waitForAFrameAndScene, 100);
+          }
+        }, 200);
+      } else {
+        const checkAFrame = setInterval(() => {
+          if (window.AFRAME) {
+            clearInterval(checkAFrame);
+            waitForAFrameAndScene();
+          }
+        }, 100);
+      }
+    };
+
+    waitForAFrameAndScene();
 
     return () => {
       if (battleTimerRef.current) {
@@ -256,7 +269,7 @@ export function ARDragonBattle({
           <div class="overlay__card">
             <h1 class="overlay__title">Dragon Battle</h1>
             <p class="overlay__message" id="overlay-message">
-              Tap <strong>Enter AR</strong> and find a safe space to place the dragon.
+              Scan your surroundings to place the dragon.
             </p>
             <button class="overlay__button" id="exit-ar">Exit AR</button>
           </div>
