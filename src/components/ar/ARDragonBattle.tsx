@@ -24,7 +24,7 @@ export function ARDragonBattle({
   hasARSupport,
   selectedWeapons,
 }: ARDragonBattleProps) {
-  const dragonHealthRef = useRef(100);
+  const dragonHealthRef = useRef(500);
   const battleTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -124,7 +124,10 @@ export function ARDragonBattle({
           }
 
           if (healthBar) {
-            const healthPercent = Math.max(0, dragonHealthRef.current);
+            const healthPercent = Math.max(
+              0,
+              (dragonHealthRef.current / 500) * 100,
+            );
             healthBar.style.width = `${healthPercent}%`;
 
             // Change color based on health
@@ -151,10 +154,26 @@ export function ARDragonBattle({
                 "<strong>Victory!</strong> The dragon has been defeated!";
             }
 
-            // Transition to victory phase after delay
+            // Wait for death animation to complete (1500ms) then exit AR and transition
             setTimeout(() => {
-              onPhaseComplete(GamePhase.VICTORY);
-            }, 3000);
+              // Exit AR session first
+              const scene = document.querySelector("a-scene");
+              const session = (scene as any)?.renderer?.xr?.getSession?.();
+              if (session) {
+                session.end().then(() => {
+                  // Remove fullscreen class
+                  document.documentElement.classList.remove("a-fullscreen");
+                  // Transition to victory phase
+                  setTimeout(() => {
+                    onPhaseComplete(GamePhase.VICTORY);
+                  }, 500);
+                });
+              } else {
+                // If no session, just transition
+                document.documentElement.classList.remove("a-fullscreen");
+                onPhaseComplete(GamePhase.VICTORY);
+              }
+            }, 2000); // Wait for death animation (1500ms) + extra time
           }
         }
 
@@ -216,7 +235,7 @@ export function ARDragonBattle({
             <div class="overlay__header">
               <h1 class="overlay__title">Dragon Battle</h1>
               <div class="overlay__health" id="overlay-health" style="display: none;">
-                Dragon: <span id="health-text">100</span> HP
+                Dragon: <span id="health-text">500</span> HP
                 <div class="health-bar">
                   <div id="health-bar-fill" class="health-bar-fill"></div>
                 </div>

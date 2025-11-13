@@ -6,6 +6,7 @@ import { FacialExpressionPhase } from "./components/phases/FacialExpressionPhase
 import { ARHuntPhase } from "./components/phases/ARHuntPhase";
 import { WeaponShopPhase } from "./components/phases/WeaponShopPhase";
 import { MonsterBattlePhase } from "./components/phases/MonsterBattlePhase";
+import { VictoryScreen } from "./components/phases/VictoryScreen";
 
 function App() {
   const {
@@ -85,6 +86,9 @@ function App() {
             selectedWeapons={gameState.weapons}
           />
         );
+
+      case GamePhase.VICTORY:
+        return <VictoryScreen totalCoins={gameState.totalCoins} />;
 
       default:
         return (

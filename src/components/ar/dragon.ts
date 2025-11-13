@@ -2,7 +2,7 @@
 import { appendDebugLine, toPositionObject } from "./debug.js";
 
 const DRAGON_SCALE = 0.003; // Scale up 3x from 0.001
-const DRAGON_HEALTH = 100;
+const DRAGON_HEALTH = 500;
 const BASE_DAMAGE = 10;
 
 const dragonRoot = document.getElementById("dragon-root");
@@ -181,9 +181,6 @@ function placeDragon(origin: any, damageBonus: number = 0) {
     // Place dragon at the reticle position (floor level)
     const dragonPosition = new (window as any).THREE.Vector3();
     dragonPosition.copy(origin);
-    // Adjust position slightly to the left to fix offset issue
-    dragonPosition.x -= 0.1;
-    // Keep at floor level - no Y offset
 
     createDragon(dragonPosition, damageBonus);
 
