@@ -11,7 +11,7 @@ import {
   ensureReticleTracking,
   updateReticlePoseFromHitTest,
   getHitTestMesh,
-  reticle,
+  getReticle,
   setReticleShouldBeVisible,
 } from "./reticle.js";
 import { scatterCoins, clearCoins, stopShakeDetection } from "./coins.js";
@@ -190,8 +190,9 @@ function setupSceneEventListeners() {
     scene.addEventListener("ar-hit-test-start", () => {
       appendDebugLine("ar-hit-test-start");
       setReticleShouldBeVisible(false);
-      if (reticle) {
-        reticle.setAttribute("visible", "false");
+      const reticleEl = getReticle();
+      if (reticleEl) {
+        reticleEl.setAttribute("visible", "false");
       }
       setOverlayMessage("Scanning your surroundings… keep moving your device.");
       startScanningReminder();
@@ -202,19 +203,20 @@ function setupSceneEventListeners() {
       appendDebugLine("ar-hit-test-achieved", event.detail?.position);
       const hitMesh = getHitTestMesh();
       const hasPose = hitMesh && updateReticlePoseFromHitTest();
-      if (!hasPose && event.detail?.position && reticle) {
-        (reticle as any).object3D.position.copy(event.detail.position);
-        (reticle as any).object3D.quaternion.set(0, 0, 0, 1);
+      const reticleEl = getReticle();
+      if (!hasPose && event.detail?.position && reticleEl) {
+        (reticleEl as any).object3D.position.copy(event.detail.position);
+        (reticleEl as any).object3D.quaternion.set(0, 0, 0, 1);
       }
       setOverlayMessage(
         "Point your phone at a flat surface until the green reticle appears, then tap to place coins.",
       );
       setReticleShouldBeVisible(true);
-      if (reticle && !reticle.getAttribute("visible")) {
-        reticle.setAttribute("visible", "true");
+      if (reticleEl && !reticleEl.getAttribute("visible")) {
+        reticleEl.setAttribute("visible", "true");
       }
-      if (reticle) {
-        reticle.setAttribute(
+      if (reticleEl) {
+        reticleEl.setAttribute(
           "animation__pulse",
           "property: scale; dir: alternate; dur: 600; easing: easeInOutSine; from: 1 1 1; to: 1.12 1.12 1.12; loop: true",
         );
@@ -226,13 +228,14 @@ function setupSceneEventListeners() {
     scene.addEventListener("ar-hit-test-select", (event: any) => {
       const target = event.detail?.position;
       appendDebugLine("ar-hit-test-select", target);
-      if (!target && reticle) {
+      const reticleEl = getReticle();
+      if (!target && reticleEl) {
         const hasPose = updateReticlePoseFromHitTest();
         if (!hasPose) return;
-        scatterCoins((reticle as any).object3D.position.clone());
+        scatterCoins((reticleEl as any).object3D.position.clone());
       } else {
-        if (reticle) {
-          (reticle as any).object3D.position.copy(target);
+        if (reticleEl) {
+          (reticleEl as any).object3D.position.copy(target);
         }
         scatterCoins(target);
       }
@@ -240,9 +243,9 @@ function setupSceneEventListeners() {
         "Collect the coins! Move close to make them glow, then shake to collect.",
       );
       setReticleShouldBeVisible(false);
-      if (reticle) {
-        reticle.removeAttribute("animation__pulse");
-        reticle.setAttribute("visible", "false");
+      if (reticleEl) {
+        reticleEl.removeAttribute("animation__pulse");
+        reticleEl.setAttribute("visible", "false");
       }
     });
 

@@ -11,7 +11,7 @@ import {
   ensureReticleTracking,
   updateReticlePoseFromHitTest,
   getHitTestMesh,
-  reticle,
+  getReticle,
   setReticleShouldBeVisible,
 } from "./reticle.js";
 import { placeDragon, clearDragon } from "./dragon.js";
@@ -231,8 +231,9 @@ function setupDragonSceneEventListeners() {
     scene.addEventListener("ar-hit-test-start", () => {
       appendDebugLine("ar-hit-test-start");
       setReticleShouldBeVisible(false);
-      if (reticle) {
-        reticle.setAttribute("visible", "false");
+      const reticleStartEl = getReticle();
+      if (reticleStartEl) {
+        reticleStartEl.setAttribute("visible", "false");
       }
       setOverlayMessage("Scanning your surroundings… keep moving your device.");
       startScanningReminder();
@@ -249,19 +250,22 @@ function setupDragonSceneEventListeners() {
       appendDebugLine("ar-hit-test-achieved", event.detail?.position);
       const hitMesh = getHitTestMesh();
       const hasPose = hitMesh && updateReticlePoseFromHitTest();
-      if (!hasPose && event.detail?.position && reticle) {
-        (reticle as any).object3D.position.copy(event.detail.position);
-        (reticle as any).object3D.quaternion.set(0, 0, 0, 1);
+      const reticleAchievedEl = getReticle();
+      if (!hasPose && event.detail?.position && reticleAchievedEl) {
+        (reticleAchievedEl as any).object3D.position.copy(
+          event.detail.position,
+        );
+        (reticleAchievedEl as any).object3D.quaternion.set(0, 0, 0, 1);
       }
       setOverlayMessage(
         "Point your phone at a flat surface until the red reticle appears, then tap to place the dragon.",
       );
       setReticleShouldBeVisible(true);
-      if (reticle && !reticle.getAttribute("visible")) {
-        reticle.setAttribute("visible", "true");
+      if (reticleAchievedEl && !reticleAchievedEl.getAttribute("visible")) {
+        reticleAchievedEl.setAttribute("visible", "true");
       }
-      if (reticle) {
-        reticle.setAttribute(
+      if (reticleAchievedEl) {
+        reticleAchievedEl.setAttribute(
           "animation__pulse",
           "property: scale; dir: alternate; dur: 600; easing: easeInOutSine; from: 1 1 1; to: 1.12 1.12 1.12; loop: true",
         );
@@ -279,13 +283,17 @@ function setupDragonSceneEventListeners() {
 
       const target = event.detail?.position;
       appendDebugLine("ar-hit-test-select", target);
-      if (!target && reticle) {
+      const reticleSelectEl = getReticle();
+      if (!target && reticleSelectEl) {
         const hasPose = updateReticlePoseFromHitTest();
         if (!hasPose) return;
-        placeDragon((reticle as any).object3D.position.clone(), damageBonus);
+        placeDragon(
+          (reticleSelectEl as any).object3D.position.clone(),
+          damageBonus,
+        );
       } else {
-        if (reticle) {
-          (reticle as any).object3D.position.copy(target);
+        if (reticleSelectEl) {
+          (reticleSelectEl as any).object3D.position.copy(target);
         }
         placeDragon(target, damageBonus);
       }
@@ -304,9 +312,10 @@ function setupDragonSceneEventListeners() {
 
       setOverlayMessage("Attack the dragon! Tap the dragon to deal damage.");
       setReticleShouldBeVisible(false);
-      if (reticle) {
-        reticle.removeAttribute("animation__pulse");
-        reticle.setAttribute("visible", "false");
+      const reticleHideEl = getReticle();
+      if (reticleHideEl) {
+        reticleHideEl.removeAttribute("animation__pulse");
+        reticleHideEl.setAttribute("visible", "false");
       }
     });
 
