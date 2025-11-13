@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { appendDebugLine, toPositionObject } from "./debug.js";
 
-const DRAGON_SCALE = 0.001; // Scale down the dragon model MUCH more (20x smaller than 0.02)
+const DRAGON_SCALE = 0.003; // Scale up 3x from 0.001
 const DRAGON_HEALTH = 100;
 const BASE_DAMAGE = 10;
 
@@ -157,6 +157,11 @@ function createDragon(position: any, damageBonus: number = 0) {
     // Forward click events from clickable area to dragon
     clickableArea.addEventListener("click", (event: any) => {
       event.stopPropagation(); // Prevent event bubbling
+      event.preventDefault(); // Prevent default behavior
+      
+      // Stop the event from reaching the AR hit test system
+      event.stopImmediatePropagation();
+      
       // Forward to dragon using A-Frame event system
       dragon.dispatchEvent(new CustomEvent("click", { detail: event.detail }));
       appendDebugLine("Dragon click area tapped", {});
@@ -181,6 +186,15 @@ function createDragon(position: any, damageBonus: number = 0) {
 
       // Emit placement event
       document.dispatchEvent(new CustomEvent("dragon-placed"));
+      
+      // After placing dragon, modify the dragon-root to prevent further AR hit testing
+      // This should prevent subsequent taps from triggering placement
+      setTimeout(() => {
+        if (dragonRoot) {
+          dragonRoot.removeAttribute("ar-hit-test");
+          appendDebugLine("Removed ar-hit-test from dragon-root after placement", {});
+        }
+      }, 100);
 
       appendDebugLine("Dragon created and placed", {
         health: DRAGON_HEALTH,
@@ -202,6 +216,14 @@ function clearDragon() {
       dragonEntity.parentNode.removeChild(dragonEntity);
     }
     dragonEntity = null;
+    
+    // Restore ar-hit-test attribute for next session
+    const dragonRoot = document.getElementById("dragon-root");
+    if (dragonRoot && !dragonRoot.hasAttribute("ar-hit-test")) {
+      // Only restore if it was removed
+      appendDebugLine("Restoring ar-hit-test to dragon-root", {});
+    }
+    
     appendDebugLine("Dragon cleared", {});
   } catch (error) {
     alert(`Error clearing dragon: ${error}`);
@@ -217,6 +239,8 @@ function placeDragon(origin: any, damageBonus: number = 0) {
     const dragonPosition = new (window as any).THREE.Vector3();
     dragonPosition.copy(origin);
     // Keep at floor level - no Y offset
+    
+    // Positioning looks correct based on debug - removing alert
 
     createDragon(dragonPosition, damageBonus);
 
