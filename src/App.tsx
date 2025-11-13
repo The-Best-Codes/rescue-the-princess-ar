@@ -5,6 +5,7 @@ import { HandTrackingPhase } from "./components/phases/HandTrackingPhase";
 import { FacialExpressionPhase } from "./components/phases/FacialExpressionPhase";
 import { ARHuntPhase } from "./components/phases/ARHuntPhase";
 import { WeaponShopPhase } from "./components/phases/WeaponShopPhase";
+import { MonsterBattlePhase } from "./components/phases/MonsterBattlePhase";
 
 function App() {
   const {
@@ -72,6 +73,15 @@ function App() {
             onPhaseComplete={handlePhaseComplete}
             onWeaponSelect={selectWeapon}
             onSpendCoins={spendCoins}
+            selectedWeapons={gameState.weapons}
+          />
+        );
+
+      case GamePhase.MONSTER_BATTLE:
+        return (
+          <MonsterBattlePhase
+            onPhaseComplete={handlePhaseComplete}
+            hasARSupport={gameState.capabilities.ar}
             selectedWeapons={gameState.weapons}
           />
         );
