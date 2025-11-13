@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { appendDebugLine, toPositionObject } from "./debug.js";
 import { playCoinCollectSound } from "../../lib/coinAudio.js";
+import {
+  startShakeDetection,
+  stopShakeDetection,
+} from "../../lib/shakeDetection.js";
 
 const COIN_COUNT = 18;
 const COIN_DISTANCE_MIN = 1.0;
@@ -8,50 +12,11 @@ const COIN_DISTANCE_MAX = 1.8;
 const COIN_FLOAT_MIN = -0.15;
 const COIN_FLOAT_MAX = 0.15;
 const COIN_RADIUS = 0.05;
-const SHAKE_THRESHOLD = 25;
-const SHAKE_TIMEOUT = 500;
 
 const coinRoot = document.getElementById("coin-root");
 const coinPool: any[] = [];
 
-let shakeDetectionActive = false;
-let lastShakeTime = 0;
 let nearCoin: any = null;
-
-function startShakeDetection() {
-  if (shakeDetectionActive) return;
-  shakeDetectionActive = true;
-  lastShakeTime = 0;
-
-  const handleDeviceMotion = (event: DeviceMotionEvent) => {
-    const acc = event.accelerationIncludingGravity;
-    if (!acc || acc.x === null || acc.y === null || acc.z === null) return;
-
-    const magnitude = Math.sqrt(acc.x ** 2 + acc.y ** 2 + acc.z ** 2);
-    const now = Date.now();
-
-    if (magnitude > SHAKE_THRESHOLD && now - lastShakeTime > SHAKE_TIMEOUT) {
-      lastShakeTime = now;
-      appendDebugLine("Shake detected", { magnitude });
-      if (nearCoin && nearCoin.parentNode) {
-        collectCoin(nearCoin);
-      }
-    }
-  };
-
-  window.addEventListener("devicemotion", handleDeviceMotion, true);
-
-  (window as any).__stopShakeDetection = () => {
-    window.removeEventListener("devicemotion", handleDeviceMotion, true);
-    shakeDetectionActive = false;
-  };
-}
-
-function stopShakeDetection() {
-  if ((window as any).__stopShakeDetection) {
-    (window as any).__stopShakeDetection();
-  }
-}
 
 function collectCoin(coinEl: any) {
   if (!coinEl || !coinEl.parentNode) return;
@@ -224,7 +189,14 @@ function clearCoins() {
 
 function scatterCoins(origin: any) {
   clearCoins();
-  startShakeDetection();
+  startShakeDetection({
+    onShake: () => {
+      appendDebugLine("Shake detected for coin collection", {});
+      if (nearCoin && nearCoin.parentNode) {
+        collectCoin(nearCoin);
+      }
+    },
+  });
 
   const camera = document.getElementById("player");
   const cameraPos = new (window as any).THREE.Vector3();
