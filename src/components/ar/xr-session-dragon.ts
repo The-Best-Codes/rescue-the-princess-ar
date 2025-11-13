@@ -27,6 +27,7 @@ let scanningReminderId: any = null;
 let scanningReminderTimeoutId: any = null;
 let damageBonus = 0;
 let dragonPlaced = false;
+let dragonSelectHandler: any = null;
 
 function startScanningReminder() {
   stopScanningReminder();
@@ -52,6 +53,42 @@ function stopScanningReminder() {
     clearInterval(scanningReminderId);
     scanningReminderId = null;
   }
+}
+
+function setupDragonTapHandler() {
+  if (!scene) return;
+
+  const renderer = (scene as any).renderer;
+  const session = renderer?.xr?.getSession?.();
+
+  if (!session) {
+    appendDebugLine("No XR session found for dragon tap handler");
+    return;
+  }
+
+  // Remove existing handler if any
+  if (dragonSelectHandler) {
+    session.removeEventListener("select", dragonSelectHandler);
+  }
+
+  // Create new handler for dragon damage
+  dragonSelectHandler = () => {
+    appendDebugLine("Dragon tap detected");
+
+    // Get the dragon entity
+    const dragonEntity = document.querySelector("[dragon-behavior]");
+    if (dragonEntity) {
+      const dragonComponent = (dragonEntity as any).components[
+        "dragon-behavior"
+      ];
+      if (dragonComponent && !dragonComponent.isDead) {
+        dragonComponent.damageDragon();
+      }
+    }
+  };
+
+  session.addEventListener("select", dragonSelectHandler);
+  appendDebugLine("Dragon tap handler setup complete");
 }
 
 function resetDragonExperience() {
@@ -256,10 +293,16 @@ function setupDragonSceneEventListeners() {
       // Mark dragon as placed
       dragonPlaced = true;
 
-      // The dragonPlaced flag should prevent further hit test processing
-      // Don't modify AR attributes as it might break WebXR
+      // Disable ar-hit-test to stop placement events
+      if (scene) {
+        scene.setAttribute("ar-hit-test", "enabled: false");
+        appendDebugLine("Disabled ar-hit-test after placement");
+      }
 
-      setOverlayMessage("Attack the dragon! Shake your phone to deal damage.");
+      // Setup tap handler for dragon damage
+      setupDragonTapHandler();
+
+      setOverlayMessage("Attack the dragon! Tap the dragon to deal damage.");
       setReticleShouldBeVisible(false);
       if (reticle) {
         reticle.removeAttribute("animation__pulse");

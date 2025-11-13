@@ -1,9 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { appendDebugLine, toPositionObject } from "./debug.js";
-import {
-  startShakeDetection,
-  stopShakeDetection,
-} from "../../lib/shakeDetection.js";
 
 const DRAGON_SCALE = 0.003; // Scale up 3x from 0.001
 const DRAGON_HEALTH = 100;
@@ -26,9 +22,37 @@ function registerDragonBehaviorComponent() {
       (this as any).health = this.data.health;
       (this as any).damageBonus = this.data.damageBonus;
       (this as any).isDead = false;
+    },
 
-      // Store reference for shake detection
-      (this as any).damageElement = this.el;
+    damageDragon() {
+      if ((this as any).isDead) return;
+
+      const damage = BASE_DAMAGE + (this as any).damageBonus;
+      (this as any).health -= damage;
+
+      // Show damage number in center of screen
+      showDamageNumber(damage, {
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2,
+      });
+
+      // Emit damage event
+      document.dispatchEvent(
+        new CustomEvent("dragon-damaged", {
+          detail: { damage, health: (this as any).health },
+        }),
+      );
+
+      // Check if dead
+      if ((this as any).health <= 0 && !(this as any).isDead) {
+        (this as any).isDead = true;
+        this.killDragon();
+      }
+
+      appendDebugLine("Dragon damaged by tap", {
+        damage,
+        remaining: (this as any).health,
+      });
     },
 
     killDragon() {
@@ -57,40 +81,6 @@ function registerDragonBehaviorComponent() {
   });
 }
 
-function damageDragon() {
-  if (!dragonEntity) return;
-
-  const dragonComponent = dragonEntity.components["dragon-behavior"];
-  if (!dragonComponent || dragonComponent.isDead) return;
-
-  const damage = BASE_DAMAGE + dragonComponent.damageBonus;
-  dragonComponent.health -= damage;
-
-  // Show damage number in center of screen since we can't get exact position from shake
-  showDamageNumber(damage, {
-    x: window.innerWidth / 2,
-    y: window.innerHeight / 2,
-  });
-
-  // Emit damage event
-  document.dispatchEvent(
-    new CustomEvent("dragon-damaged", {
-      detail: { damage, health: dragonComponent.health },
-    }),
-  );
-
-  // Check if dead
-  if (dragonComponent.health <= 0 && !dragonComponent.isDead) {
-    dragonComponent.isDead = true;
-    dragonComponent.killDragon();
-  }
-
-  appendDebugLine("Dragon damaged by shake", {
-    damage,
-    remaining: dragonComponent.health,
-  });
-}
-
 function showDamageNumber(damage: number, position: { x: number; y: number }) {
   try {
     const damageEl = document.createElement("div");
@@ -99,7 +89,13 @@ function showDamageNumber(damage: number, position: { x: number; y: number }) {
     damageEl.style.left = `${Math.max(20, Math.min(window.innerWidth - 100, position.x))}px`;
     damageEl.style.top = `${Math.max(20, Math.min(window.innerHeight - 50, position.y))}px`;
 
-    document.body.appendChild(damageEl);
+    // Add to overlay instead of body for proper XR layering
+    const overlay = document.getElementById("overlay");
+    if (overlay) {
+      overlay.appendChild(damageEl);
+    } else {
+      document.body.appendChild(damageEl);
+    }
 
     // Remove after animation
     setTimeout(() => {
@@ -150,18 +146,6 @@ function createDragon(position: any, damageBonus: number = 0) {
       // Emit placement event
       document.dispatchEvent(new CustomEvent("dragon-placed"));
 
-      // After placing dragon, modify the dragon-root to prevent further AR hit testing
-      // This should prevent subsequent taps from triggering placement
-      setTimeout(() => {
-        if (dragonRoot) {
-          dragonRoot.removeAttribute("ar-hit-test");
-          appendDebugLine(
-            "Removed ar-hit-test from dragon-root after placement",
-            {},
-          );
-        }
-      }, 100);
-
       appendDebugLine("Dragon created and placed", {
         health: DRAGON_HEALTH,
         damageBonus,
@@ -178,8 +162,6 @@ function createDragon(position: any, damageBonus: number = 0) {
 
 function clearDragon() {
   try {
-    stopDragonShakeDetection();
-
     if (dragonEntity && dragonEntity.parentNode) {
       dragonEntity.parentNode.removeChild(dragonEntity);
     }
@@ -190,18 +172,6 @@ function clearDragon() {
     alert(`Error clearing dragon: ${error}`);
     console.error("Error clearing dragon:", error);
   }
-}
-
-function startDragonShakeDetection() {
-  startShakeDetection({
-    onShake: damageDragon,
-  });
-  appendDebugLine("Dragon shake detection started", {});
-}
-
-function stopDragonShakeDetection() {
-  stopShakeDetection();
-  appendDebugLine("Dragon shake detection stopped", {});
 }
 
 function placeDragon(origin: any, damageBonus: number = 0) {
@@ -216,9 +186,6 @@ function placeDragon(origin: any, damageBonus: number = 0) {
     // Keep at floor level - no Y offset
 
     createDragon(dragonPosition, damageBonus);
-
-    // Start shake detection after dragon is placed
-    startDragonShakeDetection();
 
     appendDebugLine("Dragon placed", toPositionObject(dragonPosition));
   } catch (error) {
@@ -256,5 +223,4 @@ export {
   placeDragon,
   clearDragon,
   calculateDamageBonus,
-  stopDragonShakeDetection,
 };
