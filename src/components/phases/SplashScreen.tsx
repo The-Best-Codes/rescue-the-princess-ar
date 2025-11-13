@@ -51,10 +51,6 @@ export function SplashScreen({
     onPhaseComplete(GamePhase.HAND_TRACKING);
   };
 
-  const handleSkipToDragon = () => {
-    onPhaseComplete(GamePhase.MONSTER_BATTLE);
-  };
-
   const getCapabilityWarnings = () => {
     const warnings = [];
 
@@ -178,54 +174,38 @@ export function SplashScreen({
                 ))}
 
                 {/* Action Buttons */}
-                <div className="space-y-3">
-                  <div className="flex justify-center">
-                    {permissions.camera === "granted" ? (
-                      <Button
-                        onClick={handleStartGame}
-                        className="retro-button"
-                      >
-                        Start Adventure
-                      </Button>
-                    ) : permissions.camera === "denied" ? (
-                      <div className="w-full text-center space-y-3">
-                        <Alert className="border-red-500/50 bg-red-50 dark:bg-red-900/20">
-                          <AlertTriangle className="h-3 w-3 text-red-600 mt-0.5" />
-                          <AlertDescription className="text-red-800 dark:text-red-200">
-                            Camera access required. Please refresh and grant
-                            permission.
-                          </AlertDescription>
-                        </Alert>
-                        <Button
-                          onClick={() => window.location.reload()}
-                          className="retro-button w-full"
-                        >
-                          Refresh
-                        </Button>
-                      </div>
-                    ) : (
-                      <Button
-                        onClick={handleRequestPermissions}
-                        className="retro-button"
-                        disabled={permissions.camera === "checking"}
-                      >
-                        {permissions.camera === "checking"
-                          ? "Requesting..."
-                          : "Grant Access"}
-                      </Button>
-                    )}
-                  </div>
-
-                  {/* Debug Button - Remove after testing */}
-                  <div className="flex justify-center">
-                    <Button
-                      onClick={handleSkipToDragon}
-                      className="retro-button text-xs px-3 py-2"
-                      variant="outline"
-                    >
-                      DEBUG: Skip to Dragon Battle
+                <div className="flex justify-center">
+                  {permissions.camera === "granted" ? (
+                    <Button onClick={handleStartGame} className="retro-button">
+                      Start Adventure
                     </Button>
-                  </div>
+                  ) : permissions.camera === "denied" ? (
+                    <div className="w-full text-center space-y-3">
+                      <Alert className="border-red-500/50 bg-red-50 dark:bg-red-900/20">
+                        <AlertTriangle className="h-3 w-3 text-red-600 mt-0.5" />
+                        <AlertDescription className="text-red-800 dark:text-red-200">
+                          Camera access required. Please refresh and grant
+                          permission.
+                        </AlertDescription>
+                      </Alert>
+                      <Button
+                        onClick={() => window.location.reload()}
+                        className="retro-button w-full"
+                      >
+                        Refresh
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      onClick={handleRequestPermissions}
+                      className="retro-button"
+                      disabled={permissions.camera === "checking"}
+                    >
+                      {permissions.camera === "checking"
+                        ? "Requesting..."
+                        : "Grant Access"}
+                    </Button>
+                  )}
                 </div>
               </div>
             )}
